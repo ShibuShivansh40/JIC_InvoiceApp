@@ -127,7 +127,7 @@ import { FlatList, TouchableOpacity, View, Text, StyleSheet, RefreshControl, Ale
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const API_URL = 'https://fd343d90abe2.ngrok-free.app/api';
+const API_URL = 'https://8193638cf04f.ngrok-free.app/api';
 
 // Header remains outside to prevent Hook order violations [web:555]
 const ListHeader = ({ onRefresh, selectionCount, onGenerateSummary }) => (

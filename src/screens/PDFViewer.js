@@ -204,7 +204,7 @@ import RNPrint from 'react-native-print';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 
-const API_URL = 'https://fd343d90abe2.ngrok-free.app/api';
+const API_URL = 'https://8193638cf04f.ngrok-free.app/api';
 
 const PDFPreview = ({ route, navigation }) => {
   const rawData = route.params?.pdfData;
