@@ -4,6 +4,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
+const API_URL = 'https://fd343d90abe2.ngrok-free.app/api';
+
 const Dashboard = ({ navigation }) => {
   const [totalCount, setTotalCount] = useState(0);
 
@@ -11,7 +13,8 @@ const Dashboard = ({ navigation }) => {
     useCallback(() => {
       const fetchCount = async () => {
         try {
-          const res = await axios.get('https://rupeefunda.com/api/count');
+          const res = await axios.get(`${API_URL}/count`);
+//          const res = await axios.get('https://rupeefunda.com/api/count');
           setTotalCount(res.data.count);
         } catch (err) { console.error(err); }
       };

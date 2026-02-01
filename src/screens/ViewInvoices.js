@@ -127,6 +127,8 @@ import { FlatList, TouchableOpacity, View, Text, StyleSheet, RefreshControl, Ale
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
+const API_URL = 'https://fd343d90abe2.ngrok-free.app/api';
+
 // Header remains outside to prevent Hook order violations [web:555]
 const ListHeader = ({ onRefresh, selectionCount, onGenerateSummary }) => (
   <View style={styles.headerContainer}>
@@ -158,7 +160,8 @@ const ViewInvoices = ({ navigation }) => {
 
   const fetchRecords = async () => {
     try {
-      const res = await axios.get('https://rupeefunda.com/api/records');
+      const res = await axios.get(`${API_URL}/records`);
+//      const res = await axios.get('https://rupeefunda.com/api/records');
       setRecords(res.data);
     } catch (err) {
       console.error(err);
@@ -185,7 +188,8 @@ const ViewInvoices = ({ navigation }) => {
   const handleGenerateSummary = async () => {
     if (selectedIds.length === 0) return;
     try {
-      const res = await axios.post('https://rupeefunda.com/api/generate-summary', { ids: selectedIds });
+      const res = await axios.post(`${API_URL}/generate-summary`, { ids: selectedIds });
+//      const res = await axios.post('https://rupeefunda.com/api/generate-summary', { ids: selectedIds });
       if (res.data.pdf) {
         navigation.navigate('PDF', { pdfData: res.data.pdf, refNo: "Summary_Report" });
         setSelectedIds([]); // Clear after success
@@ -204,7 +208,8 @@ const ViewInvoices = ({ navigation }) => {
 
     // Otherwise, open the specific PDF
     try {
-      const res = await axios.post('https://rupeefunda.com/api/fetch-pdf', { refNo });
+      const res = await axios.post(`${API_URL}/fetch-pdf` ,{ refNo });
+//      const res = await axios.post('https://rupeefunda.com/api/fetch-pdf', { refNo });
       if (res.data.pdf) {
         navigation.navigate('PDF', { pdfData: res.data.pdf, refNo });
       }
