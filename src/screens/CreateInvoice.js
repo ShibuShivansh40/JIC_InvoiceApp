@@ -1847,12 +1847,11 @@ import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { saveInvoice } from '../database/db';
 
-const API_URL = 'https://fd343d90abe2.ngrok-free.app/api';
+const API_URL = 'https://8193638cf04f.ngrok-free.app/api';
 
 const CATEGORY_DATA = [
   { label: 'Colored', value: 'Colored' },
   { label: 'Black', value: 'Black' },
-  { label: 'TPE', value: 'TPE' },
   { label: '7D', value: '7D' },
 ];
 
@@ -1932,18 +1931,22 @@ const CreateInvoice = ({ navigation, route }) => {
 
   const handleItemChange = (index, field, value) => {
     const newItems = [...items];
-    newItems[index][field] = value;
 
+    if (field === 'rate') {
+      newItems[index][field] = (value === '' || isNaN(value)) ? '0' : value;
+    } else {
+      newItems[index][field] = value;
+    }
     if (field === 'name') {
       const selected = products.find(p => p.value === value);
       if (selected) {
         newItems[index].category = selected.category;
       }
     }
-
     setItems(newItems);
     calculateTotal(newItems);
   };
+
 
   const calculateTotal = (updatedItems) => {
     const newTotal = updatedItems.reduce((sum, item) => {
@@ -1953,9 +1956,19 @@ const CreateInvoice = ({ navigation, route }) => {
   };
 
   const handleSyncAndPrint = async () => {
-    if (!clientName || items.some(item => !item.name || !item.category || !item.qty || !item.rate)) {
-      return Alert.alert('Error', 'All fields are required');
-    }
+     if (!clientName.trim()) {
+         return Alert.alert('Error', 'Client name is required');
+       }
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (!item.name?.trim() ||
+            !item.category?.trim() ||
+            !item.qty?.trim() ||
+            parseFloat(item.qty) <= 0 ||
+            parseFloat(item.rate) < 0) {
+          return Alert.alert('Error', `Item ${i + 1}: All fields required. Qty must be > 0, Rate >= 0`);
+        }
+      }
 
     const invoiceData = { clientName, refNo, date, items, total };
 
@@ -2019,12 +2032,11 @@ const CreateInvoice = ({ navigation, route }) => {
   };
 
   const getCategoryFromCode = (code) => {
-    if (!code) return 'TPE';
+    if (!code) return 'Error';
     const first = code.charAt(0).toUpperCase();
     if (first === 'C') return 'Colored';
     if (first === 'B') return 'Black';
     if (first === '7') return '7D';
-    return 'TPE';
   };
 
   return (

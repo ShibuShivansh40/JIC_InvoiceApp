@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const API_URL = 'https://fd343d90abe2.ngrok-free.app/api';
+const API_URL = 'https://8193638cf04f.ngrok-free.app/api';
 
 const Dashboard = ({ navigation }) => {
   const [totalCount, setTotalCount] = useState(0);
