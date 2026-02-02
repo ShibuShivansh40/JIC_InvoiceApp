@@ -204,7 +204,8 @@ import RNPrint from 'react-native-print';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 
-const API_URL = 'https://8193638cf04f.ngrok-free.app/api';
+const API_URL = 'https://rupeefunda.com/api';
+const API_KEY = '';
 
 const PDFPreview = ({ route, navigation }) => {
   const rawData = route.params?.pdfData;
@@ -226,7 +227,9 @@ const PDFPreview = ({ route, navigation }) => {
     const encodedRefNo = encodeURIComponent(refNo); // Fix: encode slashes
     console.log('Encoded refNo for GET:', encodedRefNo);
     try {
-      const res = await axios.get(`${API_URL}/invoice/${encodedRefNo}`);
+      const res = await axios.get(`${API_URL}/invoice/${refNo}`, {
+        headers: { 'x-api-key': API_KEY }
+      });
       console.log('Edit GET response:', res.data);
       if (res.data) {
         navigation.navigate('Create', { invoiceData: res.data });

@@ -1847,7 +1847,9 @@ import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { saveInvoice } from '../database/db';
 
-const API_URL = 'https://8193638cf04f.ngrok-free.app/api';
+const API_URL = 'https://rupeefunda.com/api';
+const API_KEY = '';
+
 
 const CATEGORY_DATA = [
   { label: 'Colored', value: 'Colored' },
@@ -1894,7 +1896,9 @@ const CreateInvoice = ({ navigation, route }) => {
   const fetchClients = async () => {
     setLoadingClients(true);
     try {
-      const res = await axios.get(`${API_URL}/clients`);
+      const res = await axios.get(`${API_URL}/clients`, {
+              headers: { 'x-api-key': API_KEY }
+            });
       setClients(res.data.map(client => ({ label: client.name, value: client.name })));
     } catch (err) {
       Alert.alert('Error', 'Failed to fetch clients');
@@ -1906,7 +1910,9 @@ const CreateInvoice = ({ navigation, route }) => {
   const fetchProducts = async () => {
     setLoadingProducts(true);
     try {
-      const res = await axios.get(`${API_URL}/products`);
+      const res = await axios.get(`${API_URL}/products`, {
+              headers: { 'x-api-key': API_KEY }
+            });
       setProducts(res.data.map(product => ({
         label: `${product.code} - ${product.name}`,
         value: product.name,
@@ -1979,9 +1985,13 @@ const CreateInvoice = ({ navigation, route }) => {
       console.log('Sending data:', JSON.stringify(invoiceData, null, 2));
 
       if (isEditMode) {
-        res = await axios.put(`${API_URL}/update-invoice/${encodedRefNo}`, invoiceData);
+        res = await axios.put(`${API_URL}/update-invoice/${refNo}`, invoiceData, {
+                  headers: { 'x-api-key': API_KEY }
+                });
       } else {
-        res = await axios.post(`${API_URL}/generate-pdf`, invoiceData);
+        res = await axios.post(`${API_URL}/generate-pdf`, invoiceData, {
+                  headers: { 'x-api-key': API_KEY }
+                });
       }
 
       console.log('Server response:', res.data);
@@ -2005,7 +2015,10 @@ const CreateInvoice = ({ navigation, route }) => {
   const handleAddClient = async () => {
     if (!newClientName) return Alert.alert('Error', 'Client name required');
     try {
-      await axios.post(`${API_URL}/clients`, { name: newClientName, address: newClientAddress });
+//      await axios.post(`${API_URL}/clients`, { name: newClientName, address: newClientAddress });
+      await axios.post(`${API_URL}/clients`, { name: newClientName, address: newClientAddress }, {
+              headers: { 'x-api-key': API_KEY }
+            });
       setClientModalVisible(false);
       setNewClientName('');
       setNewClientAddress('');
@@ -2020,7 +2033,9 @@ const CreateInvoice = ({ navigation, route }) => {
     if (!newProductName || !newProductCode) return Alert.alert('Error', 'Name and code required');
     const category = getCategoryFromCode(newProductCode);
     try {
-      await axios.post(`${API_URL}/products`, { name: newProductName, code: newProductCode, category });
+      await axios.post(`${API_URL}/products`, { name: newProductName, code: newProductCode, category }, {
+              headers: { 'x-api-key': API_KEY }
+            });
       setProductModalVisible(false);
       setNewProductName('');
       setNewProductCode('');
