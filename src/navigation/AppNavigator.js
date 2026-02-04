@@ -49,17 +49,17 @@ export default function AppNavigator() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 0,
     left: 25,
     right: 25,
-    height: 65,
+    height: 55,
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     borderTopWidth: 0,
     // Elegant Shadow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.5,
     shadowRadius: 10,
     elevation: 5,
   },
