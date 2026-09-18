@@ -3,10 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
-const API_URL = 'https://rupeefunda.com/api';
-const API_KEY = '';
-
+import { API_URL, API_KEY } from '../config';
 
 const Dashboard = ({ navigation }) => {
   const [totalCount, setTotalCount] = useState(0);

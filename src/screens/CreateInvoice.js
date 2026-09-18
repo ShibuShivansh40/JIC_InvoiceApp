@@ -1846,15 +1846,12 @@ import { Dropdown } from 'react-native-element-dropdown';
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { saveInvoice } from '../database/db';
-
-const API_URL = 'https://rupeefunda.com/api';
-const API_KEY = '';
-
+import { API_URL, API_KEY } from '../config';
 
 const CATEGORY_DATA = [
   { label: 'Colored', value: 'Colored' },
   { label: 'Black', value: 'Black' },
-  { label: '7D', value: '7D' },
+  { label: 'Anti-Skid', value: 'Anti-Skid' },
 ];
 
 const CreateInvoice = ({ navigation, route }) => {
@@ -1887,7 +1884,24 @@ const CreateInvoice = ({ navigation, route }) => {
       setClientName(clientName || '');
       setRefNo(refNo || '');
       setDate(date || new Date().toLocaleDateString('en-IN'));
-      setItems(items || [{ name: '', category: '', qty: '', rate: '' }]);
+
+      // Normalize categories for incoming items (handle Anti-Skid vs Antiskid vs 7D)
+      const normalizedItems = (items || []).map(item => {
+        let cat = item.category || '';
+        const upperCat = cat.toUpperCase().replace(/[^A-Z0-9]/g, ''); // Remove hyphens/spaces for comparison
+
+        if (upperCat === 'ANTISKID' || upperCat === '7D' || upperCat === 'ANTISKIDMATMIX') {
+          cat = 'Anti-Skid';
+        } else if (upperCat === 'COLORED') {
+          cat = 'Colored';
+        } else if (upperCat === 'BLACK') {
+          cat = 'Black';
+        }
+
+        return { ...item, category: cat };
+      });
+
+      setItems(normalizedItems.length > 0 ? normalizedItems : [{ name: '', category: '', qty: '', rate: '' }]);
       setTotal(total || 0);
       setIsEditMode(true);
     }
@@ -1946,7 +1960,8 @@ const CreateInvoice = ({ navigation, route }) => {
     if (field === 'name') {
       const selected = products.find(p => p.value === value);
       if (selected) {
-        newItems[index].category = selected.category;
+        // Auto-populate category from product data, or fallback to code-based logic
+        newItems[index].category = selected.category || getCategoryFromCode(selected.code);
       }
     }
     setItems(newItems);
@@ -2047,11 +2062,13 @@ const CreateInvoice = ({ navigation, route }) => {
   };
 
   const getCategoryFromCode = (code) => {
-    if (!code) return 'Error';
-    const first = code.charAt(0).toUpperCase();
-    if (first === 'C') return 'Colored';
-    if (first === 'B') return 'Black';
-    if (first === '7') return '7D';
+    if (!code) return '';
+    const upperCode = code.toUpperCase();
+    if (upperCode.startsWith('C')) return 'Colored';
+    if (upperCode.startsWith('B')) return 'Black';
+    // Match AS (for Anti-Skid), 7 (for 7D/Anti-Skid), or check if it contains 'ANTISKID'
+    if (upperCode.startsWith('AS') || upperCode.startsWith('7')) return 'Anti-Skid';
+    return '';
   };
 
   return (

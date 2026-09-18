@@ -196,6 +196,7 @@
 //
 //export default PDFPreview;
 //===========================================================================================
+
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, Alert, Dimensions, ActivityIndicator } from 'react-native';
 import Pdf from 'react-native-pdf';
@@ -203,9 +204,7 @@ import RNPrint from 'react-native-print';
 import Share from 'react-native-share';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-
-const API_URL = 'https://rupeefunda.com/api';
-const API_KEY = '';
+import { API_URL, API_KEY } from '../config';
 
 const PDFPreview = ({ route, navigation }) => {
   const rawData = route.params?.pdfData;
