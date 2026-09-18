@@ -1,132 +1,9 @@
-//import React, { useEffect, useState, useCallback } from 'react';
-//import { FlatList, TouchableOpacity, View, Text, StyleSheet, RefreshControl } from 'react-native';
-//import axios from 'axios';
-//import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-//
-//// 1. MOVE ListHeader OUTSIDE ViewInvoices [web:555]
-//// This prevents React from thinking it's a new component on every render.
-//const ListHeader = ({ onRefresh }) => (
-//  <View style={styles.headerContainer}>
-//    <View style={styles.titleRow}>
-//      <View>
-//        <Text style={styles.mainHeading}>Invoice History</Text>
-//        <Text style={styles.subHeading}>Pull down to refresh</Text>
-//      </View>
-//      <TouchableOpacity onPress={onRefresh} style={styles.iconButton}>
-//        <MaterialIcons name="refresh" size={28} color="#007AFF" />
-//      </TouchableOpacity>
-//    </View>
-//  </View>
-//);
-//
-//const ViewInvoices = ({ navigation }) => {
-//  const [records, setRecords] = useState([]);
-//  const [refreshing, setRefreshing] = useState(false);
-//
-//  const fetchRecords = async () => {
-//    try {
-//      const res = await axios.get('https://rupeefunda.com/api/records');
-//      setRecords(res.data);
-//    } catch (err) {
-//      console.error(err);
-//    } finally {
-//      setRefreshing(false);
-//    }
-//  };
-//
-//  useEffect(() => { fetchRecords(); }, []);
-//
-//  const onRefresh = useCallback(() => {
-//    setRefreshing(true);
-//    fetchRecords();
-//  }, []);
-//
-//  const handleItemClick = async (refNo) => {
-//    try {
-//      const res = await axios.post('https://rupeefunda.com/api/fetch-pdf', { refNo });
-//      if (res.data.pdf) {
-//        navigation.navigate('PDF', { pdfData: res.data.pdf, refNo });
-//      }
-//    } catch (err) { console.error(err); }
-//  };
-//
-//  return (
-//    <View style={styles.container}>
-//      <FlatList
-//        data={records}
-//        keyExtractor={(item) => item.refNo}
-//        contentContainerStyle={styles.listContent}
-//        // 2. Pass the component reference here [web:521]
-//        ListHeaderComponent={<ListHeader onRefresh={onRefresh} />}
-//        showsVerticalScrollIndicator={false}
-//        refreshControl={
-//          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#007AFF"]} />
-//        }
-//        renderItem={({ item }) => (
-//          <TouchableOpacity style={styles.card} onPress={() => handleItemClick(item.refNo)}>
-//            <View>
-//              <Text style={styles.refText}>{item.refNo}</Text>
-//              <Text style={styles.clientText}>{item.clientName}</Text>
-//            </View>
-//            <Text style={styles.priceText}>₹ {item.total}</Text>
-//          </TouchableOpacity>
-//        )}
-//      />
-//    </View>
-//  );
-//};
-//
-//// Styles remain the same...
-//const styles = StyleSheet.create({
-//  container: { flex: 1, backgroundColor: '#f8f9fa' },
-//  listContent: { paddingBottom: 30 },
-//  headerContainer: {
-//    padding: 24,
-//    paddingTop: 50,
-//    backgroundColor: '#fff',
-//    borderBottomLeftRadius: 20,
-//    borderBottomRightRadius: 20,
-//    marginBottom: 16,
-//    elevation: 3,
-//  },
-//  titleRow: {
-//    flexDirection: 'row',
-//    justifyContent: 'space-between',
-//    alignItems: 'center',
-//  },
-//  mainHeading: { fontSize: 28, fontWeight: 'bold', color: '#1a1a1a' },
-//  subHeading: { fontSize: 13, color: '#666', marginTop: 2 },
-//  iconButton: {
-//    padding: 8,
-//    backgroundColor: '#f0f7ff',
-//    borderRadius: 50,
-//  },
-//  card: {
-//    backgroundColor: 'white',
-//    padding: 20,
-//    marginHorizontal: 16,
-//    marginBottom: 12,
-//    borderRadius: 12,
-//    flexDirection: 'row',
-//    justifyContent: 'space-between',
-//    alignItems: 'center',
-//    elevation: 3,
-//    shadowColor: '#000',
-//    shadowOffset: { width: 0, height: 1 },
-//    shadowOpacity: 0.1,
-//  },
-//  refText: { fontWeight: 'bold', fontSize: 13, color: '#007AFF' },
-//  clientText: { fontSize: 17, fontWeight: '500', color: '#333', marginTop: 2 },
-//  priceText: { fontSize: 18, fontWeight: 'bold', color: '#2ecc71' }
-//});
-//
-//export default ViewInvoices;
-
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { FlatList, TouchableOpacity, View, Text, StyleSheet, RefreshControl, Alert } from 'react-native';
+import { FlatList, TouchableOpacity, View, Text, StyleSheet, RefreshControl, Alert, ActivityIndicator } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Share from 'react-native-share';
 import { API_URL, API_KEY } from '../config';
 
 const MONTHS = [
@@ -145,7 +22,6 @@ const MONTHS = [
   { label: 'December', value: '12' },
 ];
 
-// Header remains outside to prevent Hook order violations [web:555]
 const ListHeader = ({
   onRefresh,
   selectionCount,
@@ -154,7 +30,11 @@ const ListHeader = ({
   setSelectedClient,
   clients,
   selectedMonth,
-  setSelectedMonth
+  setSelectedMonth,
+  onSelectAll,
+  isAllSelected,
+  onExportCSV,
+  isExporting
 }) => (
   <View style={styles.headerContainer}>
     <View style={styles.titleRow}>
@@ -165,6 +45,17 @@ const ListHeader = ({
         </Text>
       </View>
       <View style={styles.headerActions}>
+        <TouchableOpacity
+          onPress={onExportCSV}
+          disabled={isExporting}
+          style={[styles.iconButton, styles.csvIcon, isExporting && { opacity: 0.6 }]}
+        >
+          {isExporting ? (
+            <ActivityIndicator size="small" color="#FFF" />
+          ) : (
+            <MaterialIcons name="file-download" size={24} color="#FFF" />
+          )}
+        </TouchableOpacity>
         {selectionCount > 0 && (
           <TouchableOpacity onPress={onGenerateSummary} style={[styles.iconButton, styles.summaryIcon]}>
             <MaterialIcons name="assessment" size={24} color="#FFF" />
@@ -205,6 +96,15 @@ const ListHeader = ({
         onChange={item => setSelectedMonth(item.value)}
       />
     </View>
+
+    <TouchableOpacity style={styles.selectAllRow} onPress={onSelectAll}>
+      <MaterialIcons
+        name={isAllSelected ? "check-box" : "check-box-outline-blank"}
+        size={22}
+        color={isAllSelected ? "#007AFF" : "#666"}
+      />
+      <Text style={styles.selectAllText}>Select All Visible</Text>
+    </TouchableOpacity>
   </View>
 );
 
@@ -212,8 +112,8 @@ const ViewInvoices = ({ navigation }) => {
   const [records, setRecords] = useState([]);
   const [clients, setClients] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedIds, setSelectedIds] = useState([]); // Array of refNo [web:834]
-
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isExporting, setIsExporting] = useState(false);
   const [selectedClient, setSelectedClient] = useState('all');
   const [selectedMonth, setSelectedMonth] = useState('all');
 
@@ -248,37 +148,49 @@ const ViewInvoices = ({ navigation }) => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    setSelectedIds([]); // Clear selection on refresh
+    setSelectedIds([]);
     fetchRecords();
     fetchClients();
   }, []);
 
-  // Filtered records
   const filteredRecords = useMemo(() => {
     return records.filter(item => {
       const matchClient = selectedClient === 'all' || item.clientName === selectedClient;
 
       let matchMonth = true;
       if (selectedMonth !== 'all') {
-        // Expected format DD/MM/YYYY or D/M/YYYY
-        // Split by /, - or . just in case
-        const dateParts = item.date ? item.date.split(/[/\-.]/) : [];
-        const month = dateParts[1]; // Get the month part
-
-        if (month) {
-          // Normalize both to 2 digits for comparison (e.g., "3" becomes "03")
+        const dateStr = String(item.date || '');
+        const dateParts = dateStr.match(/\d+/g);
+        if (dateParts && dateParts.length >= 2) {
+          const month = dateParts[1];
           const normalizedMonth = month.padStart(2, '0');
           matchMonth = normalizedMonth === selectedMonth;
         } else {
           matchMonth = false;
         }
       }
-
       return matchClient && matchMonth;
     });
   }, [records, selectedClient, selectedMonth]);
 
-  // Handle Multi-Select Toggle [web:831]
+  const isAllSelected = useMemo(() => {
+    if (filteredRecords.length === 0) return false;
+    return filteredRecords.every(r => selectedIds.includes(r.refNo));
+  }, [filteredRecords, selectedIds]);
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      const visibleIds = filteredRecords.map(r => r.refNo);
+      setSelectedIds(prev => prev.filter(id => !visibleIds.includes(id)));
+    } else {
+      const visibleIds = filteredRecords.map(r => r.refNo);
+      setSelectedIds(prev => {
+        const others = prev.filter(id => !visibleIds.includes(id));
+        return [...others, ...visibleIds];
+      });
+    }
+  };
+
   const toggleSelection = (refNo) => {
     setSelectedIds(prev =>
       prev.includes(refNo) ? prev.filter(id => id !== refNo) : [...prev, refNo]
@@ -293,10 +205,90 @@ const ViewInvoices = ({ navigation }) => {
       });
       if (res.data.pdf) {
         navigation.navigate('PDF', { pdfData: res.data.pdf, refNo: "Summary_Report" });
-        setSelectedIds([]); // Clear after success
+        setSelectedIds([]);
       }
     } catch (err) {
       Alert.alert("Error", "Could not generate summary");
+    }
+  };
+
+  const handleExportCSV = async () => {
+    const idsToExport = selectedIds.length > 0
+      ? selectedIds
+      : filteredRecords.map(r => r.refNo);
+
+    if (idsToExport.length === 0) {
+      return Alert.alert("Export Error", "No records to export");
+    }
+
+    setIsExporting(true);
+    try {
+      const detailedInvoices = await Promise.all(
+        idsToExport.map(async (id) => {
+          const res = await axios.get(`${API_URL}/invoice/${encodeURIComponent(id)}`, {
+            headers: { 'x-api-key': API_KEY }
+          });
+          return res.data;
+        })
+      );
+
+      const rows = [];
+      // Main Headers
+      rows.push(["INVOICE DETAILS", "", "", "", "", "", ""]);
+
+      detailedInvoices.forEach(inv => {
+        if (!inv) return;
+
+        // Group Header Row for each invoice
+        rows.push(["Ref No", "Client Name", "Date", "Invoice Total", "", "", ""]);
+        rows.push([`"${inv.refNo}"`, `"${inv.clientName}"`, `"${inv.date}"`, inv.total, "", "", ""]);
+
+        // Items Sub-header
+        rows.push(["", "Item Name", "Code", "Category", "Qty", "Rate", "Amount"]);
+
+        if (inv.items && inv.items.length > 0) {
+          inv.items.forEach(item => {
+            rows.push([
+              "",
+              `"${item.name || ''}"`,
+              `"${item.code || ''}"`,
+              `"${item.category || ''}"`,
+              item.qty,
+              item.rate,
+              (parseFloat(item.qty) || 0) * (parseFloat(item.rate) || 0)
+            ]);
+          });
+        }
+
+        // Blank row for separation
+        rows.push(["", "", "", "", "", "", ""]);
+      });
+
+      const csvContent = rows.map(r => r.join(",")).join("\n");
+
+      // Safe base64 encoding for React Native
+      const base64Content = (typeof Buffer !== 'undefined')
+        ? Buffer.from(csvContent, 'utf-8').toString('base64')
+        : btoa(unescape(encodeURIComponent(csvContent)));
+
+      const today = new Date();
+      const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
+      const filename = `Invoice_Report_${dateStr}`;
+
+      const shareOptions = {
+        title: 'Export Grouped CSV',
+        url: `data:text/csv;base64,${base64Content}`,
+        filename: filename,
+        type: 'text/csv',
+        failOnCancel: false,
+      };
+
+      await Share.open(shareOptions);
+    } catch (err) {
+      console.error('Export failed', err);
+      Alert.alert("Export Failed", "Could not generate grouped CSV");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -330,6 +322,10 @@ const ViewInvoices = ({ navigation }) => {
             clients={clients}
             selectedMonth={selectedMonth}
             setSelectedMonth={setSelectedMonth}
+            onSelectAll={handleSelectAll}
+            isAllSelected={isAllSelected}
+            onExportCSV={handleExportCSV}
+            isExporting={isExporting}
           />
         }
         showsVerticalScrollIndicator={false}
@@ -387,6 +383,7 @@ const styles = StyleSheet.create({
   subHeading: { fontSize: 13, color: '#007AFF', marginTop: 2, fontWeight: '600' },
   iconButton: { padding: 8, backgroundColor: '#f0f7ff', borderRadius: 50 },
   summaryIcon: { backgroundColor: '#007AFF' },
+  csvIcon: { backgroundColor: '#2ecc71' },
   filterRow: { flexDirection: 'row', gap: 10, marginTop: 5 },
   dropdown: {
     height: 45,
@@ -399,6 +396,8 @@ const styles = StyleSheet.create({
   placeholderStyle: { fontSize: 14, color: '#999' },
   selectedTextStyle: { fontSize: 14, color: '#333', fontWeight: '500' },
   inputSearchStyle: { height: 40, fontSize: 14, borderRadius: 8 },
+  selectAllRow: { flexDirection: 'row', alignItems: 'center', marginTop: 15, paddingHorizontal: 5 },
+  selectAllText: { marginLeft: 8, fontSize: 14, color: '#444', fontWeight: '500' },
   card: {
     backgroundColor: 'white',
     padding: 18,
@@ -422,4 +421,3 @@ const styles = StyleSheet.create({
 });
 
 export default ViewInvoices;
-
