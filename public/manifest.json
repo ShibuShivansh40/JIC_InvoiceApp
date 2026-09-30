@@ -1,0 +1,21 @@
+{
+  "short_name": "JIC Invoices",
+  "name": "Jai Industrial Corp - Invoice App",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#007AFF",
+  "theme_color": "#007AFF",
+  "display": "standalone",
+  "orientation": "portrait"
+}
