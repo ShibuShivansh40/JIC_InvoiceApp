@@ -18,7 +18,7 @@
     "@react-navigation/native": "^7.1.26",
     "axios": "^1.13.2",
     "react": "19.2.0",
-    "react-dom": "^19.0.0",
+    "react-dom": "19.2.0",
     "react-native": "0.83.1",
     "react-native-blob-util": "^0.24.6",
     "react-native-element-dropdown": "^2.12.4",
