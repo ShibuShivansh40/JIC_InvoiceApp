@@ -4,8 +4,8 @@ frontend:
     preBuild:
       commands:
         - npm install --legacy-peer-deps
-        - echo "export const API_URL = '${API_URL:-https://rupeefunda.com/api}';" > src/config.js
-        - echo "export const API_KEY = '${API_KEY:-baBI7DNbUBQfq9FCxB7NPKxlUc4mX1nH}';" >> src/config.js
+        - echo "export const API_URL = '${API_URL}';" > src/config.js
+        - echo "export const API_KEY = '${API_KEY}';" >> src/config.js
     build:
       commands:
         - npm run build:web
