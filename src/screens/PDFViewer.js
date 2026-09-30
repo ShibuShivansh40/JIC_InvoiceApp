@@ -1,213 +1,15 @@
-//import React from 'react';
-//import { View, StyleSheet, TouchableOpacity, Text, Alert, Dimensions, ActivityIndicator } from 'react-native';
-//import Pdf from 'react-native-pdf';
-//import RNPrint from 'react-native-print';
-//import Share from 'react-native-share'; // Import Share library [web:613]
-//import Ionicons from 'react-native-vector-icons/Ionicons';
-//
-//const PDFPreview = ({ route, navigation }) => {
-//  const rawData = route.params?.pdfData;
-//  const refNo = route.params?.refNo || "Invoice";
-//  const pdfData = rawData ? rawData.replace(/\s/g, '') : null;
-//  const pdfSource = pdfData ? `data:application/pdf;base64,${pdfData}` : null;
-//
-//  const handlePrint = async () => {
-//    if (!pdfSource) return Alert.alert("Error", "No PDF data found.");
-//    try {
-//      await RNPrint.print({ filePath: pdfSource });
-//    } catch (error) { Alert.alert("Print Failed", error.message); }
-//  };
-//
-//  // SHARE LOGIC [web:613]
-//  const handleShare = async () => {
-//    if (!pdfData) return Alert.alert("Error", "No PDF data found to share.");
-//
-//    const shareOptions = {
-//      title: 'Share Invoice',
-//      // Dynamic filename based on Ref No [web:623]
-//      filename: `${refNo.replace(/\//g, '_')}`,
-//      url: `data:application/pdf;base64,${pdfData}`, // Direct base64 sharing [web:613]
-//      type: 'application/pdf',
-//    };
-//
-//    try {
-//      await Share.open(shareOptions); // Opens the native share sheet [web:613]
-//    } catch (error) {
-//      if (error.message !== 'User did not share') { // Handle user cancellation
-//        console.log('Share Error:', error.message);
-//      }
-//    }
-//  };
-//
-//  return (
-//    <View style={styles.container}>
-//      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-//        <Ionicons name="arrow-back" size={28} color="#000" />
-//      </TouchableOpacity>
-//
-//      {pdfSource ? (
-//        <Pdf
-//          trustAllCerts={false}
-//          source={{ uri: pdfSource, cache: true }}
-//          singlePage={true}
-//          activityIndicator={<ActivityIndicator color="#000" size="large" />}
-//          style={styles.pdf}
-//        />
-//      ) : (
-//        <View style={styles.errorContainer}>
-//          <Text style={styles.errorText}>No PDF data received from server.</Text>
-//        </View>
-//      )}
-//
-//      {/* BUTTON ROW [web:467] */}
-//      <View style={styles.buttonRow}>
-//        <TouchableOpacity style={[styles.actionBtn, styles.shareBtn]} onPress={handleShare}>
-//          <Ionicons name="share-social" size={20} color="#FFF" style={{marginRight: 8}} />
-//          <Text style={styles.btnText}>Share</Text>
-//        </TouchableOpacity>
-//
-//        <TouchableOpacity style={[styles.actionBtn, styles.printBtn]} onPress={handlePrint}>
-//          <Ionicons name="print" size={20} color="#FFF" style={{marginRight: 8}} />
-//          <Text style={styles.btnText}>Print</Text>
-//        </TouchableOpacity>
-//      </View>
-//    </View>
-//  );
-//};
-//
-//const styles = StyleSheet.create({
-//  container: { flex: 1, backgroundColor: '#F8F9FB' },
-//  backBtn: {
-//    position: 'absolute', top: 40, left: 20, zIndex: 101,
-//    backgroundColor: '#FFF', padding: 8, borderRadius: 50, elevation: 5,
-//  },
-//  pdf: { flex: 1, width: Dimensions.get('window').width, height: Dimensions.get('window').height },
-//  buttonRow: {
-//    position: 'absolute', bottom: 30,
-//    flexDirection: 'row', width: '100%',
-//    justifyContent: 'center', gap: 15, zIndex: 100,
-//  },
-//  actionBtn: {
-//    flexDirection: 'row', alignItems: 'center',
-//    paddingVertical: 14, paddingHorizontal: 30,
-//    borderRadius: 30, elevation: 10,
-//  },
-//  shareBtn: { backgroundColor: '#007AFF' }, // Blue for Share
-//  printBtn: { backgroundColor: '#000' },    // Black for Print
-//  btnText: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
-//  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-//  errorText: { color: '#666', fontSize: 14 },
-//});
-//
-//export default PDFPreview;
-//===============================================================================================================
-//import React from 'react';
-//import { View, StyleSheet, TouchableOpacity, Text, Alert, Dimensions, ActivityIndicator } from 'react-native';
-//import Pdf from 'react-native-pdf';
-//import RNPrint from 'react-native-print';
-//import Ionicons from 'react-native-vector-icons/Ionicons';
-//import axios from 'axios';
-//
-//const API_URL = 'https://fd343d90abe2.ngrok-free.app/api';
-//
-//const PDFPreview = ({ route, navigation }) => {
-//  const rawData = route.params?.pdfData;
-//  const refNo = route.params?.refNo;
-//  const pdfData = rawData ? rawData.replace(/\s/g, '') : null;
-//  const pdfSource = pdfData ? `data:application/pdf;base64,${pdfData}` : null;
-//
-//  const handlePrint = async () => {
-//    if (!pdfSource) return Alert.alert("Error", "No PDF data found to print.");
-//    try {
-//      await RNPrint.print({ filePath: pdfSource });
-//    } catch (error) {
-//      Alert.alert("Print Failed", error.message);
-//    }
-//  };
-//
-//  const handleEdit = async () => {
-//    try {
-//      const res = await axios.get(`${API_URL}/invoice/${refNo}`); // New endpoint to fetch single invoice
-//      if (res.data) {
-//        navigation.navigate('Create', { invoiceData: res.data }); // Pass to CreateInvoice for pre-fill
-//      }
-//    } catch (err) {
-//      Alert.alert('Error', 'Failed to load invoice for edit');
-//    }
-//  };
-//
-//  return (
-//    <View style={styles.container}>
-//      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-//        <Ionicons name="arrow-back" size={28} color="#000" />
-//      </TouchableOpacity>
-//
-//      {pdfData ? (
-//        <Pdf source={{ uri: pdfSource }} style={styles.pdf} />
-//      ) : (
-//        <View style={styles.errorContainer}>
-//          <Text style={styles.errorText}>No PDF data</Text>
-//        </View>
-//      )}
-//
-//      <View style={styles.buttonRow}>
-//        <TouchableOpacity style={[styles.actionBtn, styles.shareBtn]}>
-//          <Ionicons name="share-social" size={20} color="#FFF" />
-//          <Text style={styles.btnText}>Share</Text>
-//        </TouchableOpacity>
-//        <TouchableOpacity style={[styles.actionBtn, styles.printBtn]} onPress={handlePrint}>
-//          <Ionicons name="print" size={20} color="#FFF" />
-//          <Text style={styles.btnText}>Print</Text>
-//        </TouchableOpacity>
-//        <TouchableOpacity style={[styles.actionBtn, styles.editBtn]} onPress={handleEdit}>
-//          <Ionicons name="pencil" size={20} color="#FFF" />
-//          <Text style={styles.btnText}>Edit</Text>
-//        </TouchableOpacity>
-//      </View>
-//    </View>
-//  );
-//};
-//
-//const styles = StyleSheet.create({
-//  container: { flex: 1, backgroundColor: '#F8F9FB' },
-//  backBtn: {
-//    position: 'absolute', top: 40, left: 20, zIndex: 101,
-//    backgroundColor: '#FFF', padding: 8, borderRadius: 50, elevation: 5,
-//  },
-//  pdf: { flex: 1, width: Dimensions.get('window').width, height: Dimensions.get('window').height },
-//  buttonRow: {
-//    position: 'absolute', bottom: 30,
-//    flexDirection: 'row', width: '100%',
-//    justifyContent: 'center', gap: 15, zIndex: 100,
-//  },
-//  actionBtn: {
-//    flexDirection: 'row', alignItems: 'center',
-//    paddingVertical: 14, paddingHorizontal: 30,
-//    borderRadius: 30, elevation: 10,
-//  },
-//  shareBtn: { backgroundColor: '#007AFF' }, // Blue for Share
-//  printBtn: { backgroundColor: '#000' },    // Black for Print
-//  btnText: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
-//  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-//  errorText: { color: '#666', fontSize: 14 },
-//
-//  editBtn: { backgroundColor: '#FFC107' }, // Yellow for Edit
-//});
-//
-//export default PDFPreview;
-//===========================================================================================
-
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, Alert, Dimensions, ActivityIndicator } from 'react-native';
 import Pdf from 'react-native-pdf';
 import RNPrint from 'react-native-print';
+import Share from 'react-native-share';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-
-const API_URL = 'https://rupeefunda.com/api';
-const API_KEY = '';
+import { API_URL, API_KEY } from '../config';
+import { useTheme } from '../context/ThemeContext';
 
 const PDFPreview = ({ route, navigation }) => {
+  const { theme, isDarkMode } = useTheme();
   const rawData = route.params?.pdfData;
   const refNo = route.params?.refNo;
   const pdfData = rawData ? rawData.replace(/\s/g, '') : null;
@@ -222,59 +24,96 @@ const PDFPreview = ({ route, navigation }) => {
     }
   };
 
-  const handleEdit = async () => {
-    if (!refNo) return Alert.alert('Error', 'No reference number available');
-    const encodedRefNo = encodeURIComponent(refNo); // Fix: encode slashes
-    console.log('Encoded refNo for GET:', encodedRefNo);
+  const handleShare = async () => {
+    if (!pdfData) return Alert.alert("Error", "No PDF data found to share.");
+    const filename = refNo ? `${refNo.replace(/\//g, '_')}.pdf` : 'Invoice.pdf';
+
+    const shareOptions = {
+      title: 'Share Invoice',
+      filename: filename,
+      url: `data:application/pdf;base64,${pdfData}`,
+      type: 'application/pdf',
+      failOnCancel: false,
+    };
+
     try {
-      const res = await axios.get(`${API_URL}/invoice/${refNo}`, {
+      await Share.open(shareOptions);
+    } catch (error) {
+      if (error.message !== 'User did not share') {
+        console.log('Share Error:', error.message);
+      }
+    }
+  };
+
+  const handleEdit = async () => {
+    if (!refNo) {
+      console.log('No refNo provided in route params');
+      return Alert.alert('Error', 'No reference number available');
+    }
+
+    const encodedRefNo = encodeURIComponent(refNo);
+    console.log('Requesting edit for encoded refNo:', encodedRefNo);
+
+    try {
+      const res = await axios.get(`${API_URL}/invoice/${encodedRefNo}`, {
         headers: { 'x-api-key': API_KEY }
       });
-      console.log('Edit GET response:', res.data);
-      if (res.data) {
+
+      if (res.status === 200 && res.data && Object.keys(res.data).length > 0) {
         navigation.navigate('Create', { invoiceData: res.data });
       } else {
-        Alert.alert('Error', 'Invoice not found');
+        Alert.alert('Error', 'Invoice data not found or empty');
       }
     } catch (err) {
-      console.error('Edit GET error:', err.response?.data || err.message);
-      Alert.alert('Error', err.response?.data?.error || 'Failed to load invoice');
+      let errorMsg = 'Failed to load invoice for edit';
+      if (err.response?.status === 401) {
+        errorMsg = 'Unauthorized - Check API key';
+      } else if (err.response?.status === 404) {
+        errorMsg = 'Invoice not found';
+      } else if (err.response?.status === 500) {
+        errorMsg = 'Server error - Check server logs';
+      } else if (err.code === 'ERR_NETWORK') {
+        errorMsg = 'Network error - Check connection';
+      }
+
+      Alert.alert('Edit Failed', errorMsg);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={28} color="#000" />
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.cardBackground }]} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={26} color={theme.textPrimary} />
       </TouchableOpacity>
 
-      {pdfData ? (
+      {pdfSource ? (
         <Pdf
-          source={{ uri: pdfSource }}
+          trustAllCerts={false}
+          source={{ uri: pdfSource, cache: true }}
           style={styles.pdf}
           singlePage={true}
-          activityIndicator={<ActivityIndicator color="#000" size="large" />}
-          onLoadComplete={(numberOfPages) => console.log(`PDF loaded with ${numberOfPages} pages`)}
-          onError={(error) => Alert.alert('Render Error', 'Could not display PDF')}
+          activityIndicator={<ActivityIndicator color={theme.accent} size="large" />}
+          onLoadComplete={(numberOfPages) => console.log(`PDF loaded: ${numberOfPages} pages`)}
+          onError={(error) => console.log('PDF Render Error:', error)}
         />
       ) : (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>No PDF data available</Text>
+          <Text style={[styles.errorText, { color: theme.textSecondary }]}>No PDF data available</Text>
         </View>
       )}
 
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={[styles.actionBtn, styles.shareBtn]}>
-          <Ionicons name="share-social" size={20} color="#FFF" style={{ marginRight: 8 }} />
+        <TouchableOpacity style={[styles.actionBtn, styles.shareBtn]} onPress={handleShare}>
+          <Ionicons name="share-social" size={20} color="#FFF" style={styles.btnIcon} />
           <Text style={styles.btnText}>Share</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, styles.printBtn]} onPress={handlePrint}>
-          <Ionicons name="print" size={20} color="#FFF" style={{ marginRight: 8 }} />
+        <TouchableOpacity style={[styles.actionBtn, styles.printBtn, { backgroundColor: isDarkMode ? '#3A3A3C' : '#111' }]} onPress={handlePrint}>
+          <Ionicons name="print" size={20} color="#FFF" style={styles.btnIcon} />
           <Text style={styles.btnText}>Print</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionBtn, styles.editBtn]} onPress={handleEdit}>
-          <Ionicons name="pencil" size={20} color="#FFF" style={{ marginRight: 8 }} />
-          <Text style={styles.btnText}>Edit</Text>
+          <Ionicons name="pencil" size={20} color="#111" style={styles.btnIcon} />
+          <Text style={[styles.btnText, { color: '#111' }]}>Edit</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -282,28 +121,31 @@ const PDFPreview = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FB' },
+  container: { flex: 1 },
   backBtn: {
-    position: 'absolute', top: 40, left: 20, zIndex: 101,
-    backgroundColor: '#FFF', padding: 8, borderRadius: 50, elevation: 5,
+    position: 'absolute', top: 45, left: 20, zIndex: 101,
+    padding: 10, borderRadius: 50, elevation: 5,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 6,
   },
   pdf: { flex: 1, width: Dimensions.get('window').width, height: Dimensions.get('window').height },
   buttonRow: {
-    position: 'absolute', bottom: 30,
+    position: 'absolute', bottom: 40,
     flexDirection: 'row', width: '100%',
     justifyContent: 'center', gap: 15, zIndex: 100,
   },
   actionBtn: {
     flexDirection: 'row', alignItems: 'center',
-    paddingVertical: 14, paddingHorizontal: 30,
-    borderRadius: 30, elevation: 10,
+    paddingVertical: 14, paddingHorizontal: 22,
+    borderRadius: 30, elevation: 8,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 4,
   },
   shareBtn: { backgroundColor: '#007AFF' },
-  printBtn: { backgroundColor: '#000' },
-  editBtn: { backgroundColor: '#FFC107' }, // Yellow for Edit
-  btnText: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
+  printBtn: { backgroundColor: '#111' },
+  editBtn: { backgroundColor: '#FFC107' },
+  btnText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
+  btnIcon: { marginRight: 6 },
   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { color: '#666', fontSize: 14 },
+  errorText: { fontSize: 16 },
 });
 
 export default PDFPreview;
