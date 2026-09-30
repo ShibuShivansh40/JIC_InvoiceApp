@@ -6,6 +6,8 @@ frontend:
         - npm install --legacy-peer-deps
         - echo "export const API_URL = '${API_URL}';" > src/config.js
         - echo "export const API_KEY = '${API_KEY}';" >> src/config.js
+        - echo "export const AUTH_USER = '${AUTH_USER}';" >> src/config.js
+        - echo "export const AUTH_PASS = '${AUTH_PASS}';" >> src/config.js
     build:
       commands:
         - npm run build:web

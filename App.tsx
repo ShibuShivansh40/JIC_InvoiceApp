@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { initDB } from './src/database/db';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ThemeProvider } from './src/context/ThemeContext';
+import { AuthProvider } from './src/context/AuthContext';
 
 const App = () => {
   useEffect(() => {
@@ -13,9 +14,11 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <NavigationContainer>
-          <AppNavigator />
-        </NavigationContainer>
+        <AuthProvider>
+          <NavigationContainer>
+            <AppNavigator />
+          </NavigationContainer>
+        </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

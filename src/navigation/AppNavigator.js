@@ -1,17 +1,32 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Dashboard from '../screens/Dashboard';
 import CreateInvoice from '../screens/CreateInvoice';
 import ViewInvoices from '../screens/ViewInvoices';
 import PDFPreview from '../screens/PDFViewer';
+import Login from '../screens/Login';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 const Tab = createBottomTabNavigator();
 
 export default function AppNavigator() {
   const { theme, isDarkMode } = useTheme();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.accent} />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -56,6 +71,11 @@ export default function AppNavigator() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   tabBar: {
     position: 'absolute',
     bottom: 15,

@@ -1,15 +1,17 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { API_URL, API_KEY } from '../config';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = ({ navigation }) => {
   const [totalCount, setTotalCount] = useState(0);
   const { isDarkMode, toggleTheme, theme } = useTheme();
+  const { logout } = useAuth();
 
   useFocusEffect(
     useCallback(() => {
@@ -27,6 +29,10 @@ const Dashboard = ({ navigation }) => {
     }, [])
   );
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.background }]} showsVerticalScrollIndicator={false}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={theme.headerBackground} />
@@ -39,18 +45,28 @@ const Dashboard = ({ navigation }) => {
             <Text style={[styles.subHeading, { color: theme.accent }]}>Operations Dashboard</Text>
           </View>
 
-          {/* Theme Toggle Button */}
-          <TouchableOpacity
-            style={[styles.themeToggleBtn, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F0F7FF' }]}
-            onPress={toggleTheme}
-            activeOpacity={0.7}
-          >
-            <Ionicons
-              name={isDarkMode ? "sunny" : "moon"}
-              size={22}
-              color={isDarkMode ? "#FFD60A" : "#007AFF"}
-            />
-          </TouchableOpacity>
+          {/* Controls: Theme Toggle & Logout */}
+          <View style={styles.headerControls}>
+            <TouchableOpacity
+              style={[styles.headerBtn, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F0F7FF' }]}
+              onPress={toggleTheme}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name={isDarkMode ? "sunny" : "moon"}
+                size={20}
+                color={isDarkMode ? "#FFD60A" : "#007AFF"}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.headerBtn, { backgroundColor: '#FFF0F0', marginLeft: 8 }]}
+              onPress={handleLogout}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="log-out-outline" size={20} color="#E53E3E" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -128,7 +144,11 @@ const styles = StyleSheet.create({
   },
   mainHeading: { fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
   subHeading: { fontSize: 14, fontWeight: '700', marginTop: 4 },
-  themeToggleBtn: {
+  headerControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerBtn: {
     padding: 10,
     borderRadius: 50,
     alignItems: 'center',
