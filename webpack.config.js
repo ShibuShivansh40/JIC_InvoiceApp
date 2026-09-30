@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -60,6 +61,19 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'index.html'),
     }),
+    {
+      apply: (compiler) => {
+        compiler.hooks.afterEmit.tap('CopyPublicPlugin', () => {
+          const publicDir = path.resolve(__dirname, 'public');
+          const distDir = path.resolve(__dirname, 'dist');
+          if (fs.existsSync(publicDir) && fs.existsSync(distDir)) {
+            fs.readdirSync(publicDir).forEach((file) => {
+              fs.copyFileSync(path.join(publicDir, file), path.join(distDir, file));
+            });
+          }
+        });
+      },
+    },
   ],
   devServer: {
     historyApiFallback: true,
