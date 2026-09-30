@@ -1,20 +1,31 @@
 {
+  "id": "/",
   "short_name": "JIC Invoices",
   "name": "Jai Industrial Corp - Invoice App",
+  "description": "Create, view and share invoices for Jai Industrial Corp.",
   "icons": [
     {
       "src": "/icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
       "src": "/icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "start_url": "/",
-  "background_color": "#007AFF",
+  "scope": "/",
+  "background_color": "#F8F9FB",
   "theme_color": "#007AFF",
   "display": "standalone",
   "orientation": "portrait"

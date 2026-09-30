@@ -76,6 +76,15 @@ const RootApp = () => (
   </WebErrorBoundary>
 );
 
+// Register the service worker (production only, so dev builds never serve stale code)
+if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.log('Service worker registration failed:', err);
+    });
+  });
+}
+
 // Register and launch app
 AppRegistry.registerComponent('InvoiceApp', () => RootApp);
 AppRegistry.runApplication('InvoiceApp', {
