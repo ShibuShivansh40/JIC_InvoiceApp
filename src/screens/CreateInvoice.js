@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, ActivityIndicator } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import axios from 'axios';
@@ -46,7 +46,6 @@ const CreateInvoice = ({ navigation, route }) => {
       setRefNo(refNo || '');
       setDate(date || new Date().toLocaleDateString('en-IN'));
 
-      // Normalize categories and convert numeric fields to String for TextInput safety
       const normalizedItems = (items || []).map(item => {
         let cat = item.category || '';
         const upperCat = cat.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -111,6 +110,9 @@ const CreateInvoice = ({ navigation, route }) => {
   };
 
   const handleRemoveItem = (index) => {
+    if (items.length === 1) {
+      return Alert.alert('Notice', 'At least one item is required');
+    }
     const newItems = items.filter((_, i) => i !== index);
     setItems(newItems);
     calculateTotal(newItems);
@@ -141,6 +143,32 @@ const CreateInvoice = ({ navigation, route }) => {
     }, 0);
     setTotal(newTotal);
   };
+
+  const handleResetForm = () => {
+    Alert.alert(
+      'Reset Form',
+      'Are you sure you want to clear all inputs?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: () => {
+            setClientName('');
+            setRefNo('');
+            setDate(new Date().toLocaleDateString('en-IN'));
+            setItems([{ name: '', category: '', qty: '', rate: '' }]);
+            setTotal(0);
+            setIsEditMode(false);
+          }
+        }
+      ]
+    );
+  };
+
+  const totalQtyCount = useMemo(() => {
+    return items.reduce((sum, item) => sum + (parseFloat(item.qty) || 0), 0);
+  }, [items]);
 
   const handleSyncAndPrint = async () => {
     if (!clientName.trim()) {
@@ -232,11 +260,24 @@ const CreateInvoice = ({ navigation, route }) => {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.background }]} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+      contentContainerStyle={styles.contentContainer}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Header Container */}
       <View style={[styles.headerContainer, { backgroundColor: theme.headerBackground, borderColor: theme.border }]}>
-        <Text style={[styles.heading, { color: theme.textPrimary }]}>{isEditMode ? 'Edit Memo' : 'Create New Memo'}</Text>
+        <View style={styles.headerTitleRow}>
+          <Text style={[styles.heading, { color: theme.textPrimary }]}>{isEditMode ? 'Edit Memo' : 'Create New Memo'}</Text>
+          <TouchableOpacity onPress={handleResetForm} style={[styles.resetBtn, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F0F7FF' }]}>
+            <MaterialIcons name="restart-alt" size={20} color={theme.accent} />
+            <Text style={[styles.resetBtnText, { color: theme.accent }]}>Reset</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
+      {/* Client Section */}
       <View style={[styles.section, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
         <Text style={[styles.sectionLabel, { color: theme.textPrimary }]}>Client</Text>
         {loadingClients ? (
@@ -263,6 +304,7 @@ const CreateInvoice = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Details Section */}
       <View style={[styles.section, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
         <Text style={[styles.sectionLabel, { color: theme.textPrimary }]}>Details</Text>
         <View style={styles.inputRow}>
@@ -274,86 +316,126 @@ const CreateInvoice = ({ navigation, route }) => {
             editable={false}
           />
         </View>
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.textPrimary }]}
-          placeholder="Date (DD/MM/YYYY)"
-          value={date}
-          onChangeText={setDate}
-          placeholderTextColor={theme.textSecondary}
-        />
+        <View style={styles.inputRow}>
+          <MaterialIcons name="event" size={20} color={theme.textSecondary} style={styles.icon} />
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.textPrimary }]}
+            placeholder="Date (DD/MM/YYYY)"
+            value={date}
+            onChangeText={setDate}
+            placeholderTextColor={theme.textSecondary}
+          />
+        </View>
       </View>
 
+      {/* Items Section */}
       <View style={[styles.section, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
         <View style={styles.itemsHeader}>
-          <Text style={[styles.sectionLabel, { color: theme.textPrimary }]}>Items</Text>
+          <Text style={[styles.sectionLabel, { color: theme.textPrimary }]}>Items ({items.length})</Text>
           <TouchableOpacity style={styles.addLink} onPress={() => setProductModalVisible(true)}>
             <Text style={[styles.addLinkText, { color: theme.accent }]}>+ Add New Product</Text>
           </TouchableOpacity>
         </View>
+
         {loadingProducts ? <ActivityIndicator color={theme.accent} /> : (
-          items.map((item, index) => (
-            <View key={index} style={[styles.itemBox, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}>
-              <TouchableOpacity style={[styles.deleteIcon, { backgroundColor: isDarkMode ? '#3A1C1C' : '#FFF0F0' }]} onPress={() => handleRemoveItem(index)}>
-                <MaterialIcons name="close" size={16} color="#FF3B30" />
-              </TouchableOpacity>
-              <Dropdown
-                style={[styles.itemDropdown, { borderColor: theme.border }]}
-                placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
-                selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
-                inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary }]}
-                data={products}
-                search
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder="Select Product"
-                searchPlaceholder="Search..."
-                value={item.name}
-                onChange={selected => handleItemChange(index, 'name', selected.value)}
-              />
-              <View style={styles.row}>
+          items.map((item, index) => {
+            const lineSubtotal = (parseFloat(item.qty) || 0) * (parseFloat(item.rate) || 0);
+            return (
+              <View key={index} style={[styles.itemBox, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}>
+                <View style={styles.itemBoxHeader}>
+                  <View style={[styles.itemBadge, { backgroundColor: isDarkMode ? '#2C2C2E' : '#E0F2FE' }]}>
+                    <Text style={[styles.itemBadgeText, { color: theme.accent }]}>Item #{index + 1}</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={[styles.deleteIcon, { backgroundColor: isDarkMode ? '#3A1C1C' : '#FFF0F0' }]}
+                    onPress={() => handleRemoveItem(index)}
+                  >
+                    <MaterialIcons name="close" size={16} color="#FF3B30" />
+                  </TouchableOpacity>
+                </View>
+
                 <Dropdown
-                  style={[styles.dropdownCategory, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+                  style={[styles.itemDropdown, { borderColor: theme.border }]}
                   placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
                   selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
-                  data={CATEGORY_DATA}
+                  inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary }]}
+                  data={products}
+                  search
+                  maxHeight={300}
                   labelField="label"
                   valueField="value"
-                  placeholder="Category"
-                  value={item.category}
-                  onChange={selected => handleItemChange(index, 'category', selected.value)}
+                  placeholder="Select Product"
+                  searchPlaceholder="Search..."
+                  value={item.name}
+                  onChange={selected => handleItemChange(index, 'name', selected.value)}
                 />
-                <TextInput
-                  style={[styles.numericInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.accent }]}
-                  placeholder="Qty"
-                  placeholderTextColor={theme.textSecondary}
-                  keyboardType="numeric"
-                  value={String(item.qty ?? '')}
-                  onChangeText={value => handleItemChange(index, 'qty', value)}
-                />
-                <TextInput
-                  style={[styles.numericInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.success }]}
-                  placeholder="Rate"
-                  placeholderTextColor={theme.textSecondary}
-                  keyboardType="numeric"
-                  value={String(item.rate ?? '')}
-                  onChangeText={value => handleItemChange(index, 'rate', value)}
-                />
+
+                <View style={styles.row}>
+                  <Dropdown
+                    style={[styles.dropdownCategory, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+                    placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
+                    selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
+                    data={CATEGORY_DATA}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Category"
+                    value={item.category}
+                    onChange={selected => handleItemChange(index, 'category', selected.value)}
+                  />
+                  <TextInput
+                    style={[styles.numericInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.accent }]}
+                    placeholder="Qty"
+                    placeholderTextColor={theme.textSecondary}
+                    keyboardType="numeric"
+                    value={String(item.qty ?? '')}
+                    onChangeText={value => handleItemChange(index, 'qty', value)}
+                  />
+                  <TextInput
+                    style={[styles.numericInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.success }]}
+                    placeholder="Rate"
+                    placeholderTextColor={theme.textSecondary}
+                    keyboardType="numeric"
+                    value={String(item.rate ?? '')}
+                    onChangeText={value => handleItemChange(index, 'rate', value)}
+                  />
+                </View>
+
+                {/* Line Item Subtotal Display */}
+                <View style={styles.lineSubtotalRow}>
+                  <Text style={[styles.lineSubtotalText, { color: theme.textSecondary }]}>
+                    Amount: <Text style={{ color: theme.success, fontWeight: '700' }}>₹ {lineSubtotal.toLocaleString('en-IN')}</Text>
+                  </Text>
+                </View>
               </View>
-            </View>
-          ))
+            );
+          })
         )}
+
         <TouchableOpacity style={[styles.addButton, { backgroundColor: isDarkMode ? '#1E293B' : '#F0F7FF' }]} onPress={handleAddItem}>
           <MaterialIcons name="add-circle" size={24} color={theme.accent} style={styles.addIcon} />
           <Text style={[styles.addButtonText, { color: theme.accent }]}>Add Another Item</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={[styles.totalRow, { backgroundColor: isDarkMode ? '#1C3829' : '#E8F5E9' }]}>
-        <Text style={[styles.totalLabel, { color: theme.textPrimary }]}>Grand Total</Text>
-        <Text style={[styles.totalValue, { color: theme.success }]}>₹ {total.toLocaleString('en-IN')}</Text>
+      {/* Summary Stats Row */}
+      <View style={[styles.summaryCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+        <View style={styles.summaryStatItem}>
+          <Text style={[styles.summaryStatLabel, { color: theme.textSecondary }]}>Items</Text>
+          <Text style={[styles.summaryStatValue, { color: theme.textPrimary }]}>{items.length}</Text>
+        </View>
+        <View style={[styles.summaryDivider, { backgroundColor: theme.border }]} />
+        <View style={styles.summaryStatItem}>
+          <Text style={[styles.summaryStatLabel, { color: theme.textSecondary }]}>Total Qty</Text>
+          <Text style={[styles.summaryStatValue, { color: theme.accent }]}>{totalQtyCount}</Text>
+        </View>
+        <View style={[styles.summaryDivider, { backgroundColor: theme.border }]} />
+        <View style={styles.summaryStatItem}>
+          <Text style={[styles.summaryStatLabel, { color: theme.textSecondary }]}>Grand Total</Text>
+          <Text style={[styles.summaryStatValue, { color: theme.success }]}>₹ {total.toLocaleString('en-IN')}</Text>
+        </View>
       </View>
 
+      {/* Generate / Update Button */}
       <TouchableOpacity style={[styles.printButton, { backgroundColor: isDarkMode ? theme.accent : '#111111' }]} onPress={handleSyncAndPrint}>
         <Text style={styles.printText}>{isEditMode ? 'Update & Preview PDF' : 'Generate & Preview PDF'}</Text>
       </TouchableOpacity>
@@ -427,7 +509,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   contentContainer: { paddingBottom: 120 },
   headerContainer: {
-    padding: 24,
+    padding: 20,
     paddingTop: 50,
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
@@ -437,15 +519,31 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     borderBottomWidth: 1,
   },
+  headerTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   heading: {
-    fontSize: 28,
-    fontWeight: '700',
-    textAlign: 'center',
+    fontSize: 26,
+    fontWeight: '800',
     letterSpacing: 0.2,
   },
+  resetBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  resetBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
   section: {
-    marginVertical: 12,
-    padding: 20,
+    marginVertical: 10,
+    padding: 18,
     borderRadius: 20,
     elevation: 3,
     shadowOffset: { width: 0, height: 2 },
@@ -455,60 +553,60 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   sectionLabel: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     marginBottom: 12,
   },
   dropdown: {
-    height: 54,
+    height: 50,
     borderRadius: 14,
     paddingHorizontal: 16,
     borderWidth: 1.2,
   },
   dropdownCategory: {
     flex: 2.2,
-    height: 54,
+    height: 50,
     borderRadius: 14,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     borderWidth: 1.2,
   },
   placeholderStyle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '500',
   },
   selectedTextStyle: {
-    fontSize: 16.5,
+    fontSize: 15.5,
     fontWeight: '600',
   },
   inputSearchStyle: {
     height: 48,
-    fontSize: 16,
+    fontSize: 15,
     borderRadius: 12,
     paddingHorizontal: 12,
   },
   addLink: {
-    marginTop: 12,
+    marginTop: 10,
     alignSelf: 'flex-start',
   },
   addLinkText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   icon: {
-    marginRight: 12,
+    marginRight: 10,
   },
   input: {
     flex: 1,
-    height: 54,
+    height: 50,
     borderRadius: 14,
     paddingHorizontal: 16,
     borderWidth: 1.2,
-    fontSize: 16,
+    fontSize: 15,
   },
   itemsHeader: {
     flexDirection: 'row',
@@ -518,20 +616,32 @@ const styles = StyleSheet.create({
   },
   itemBox: {
     marginBottom: 14,
-    padding: 18,
+    padding: 16,
     borderRadius: 16,
     borderWidth: 1.2,
   },
+  itemBoxHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  itemBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+  },
+  itemBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
   deleteIcon: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
     padding: 6,
     borderRadius: 20,
   },
   itemDropdown: {
-    height: 54,
-    marginBottom: 14,
+    height: 50,
+    marginBottom: 12,
   },
   row: {
     flexDirection: 'row',
@@ -540,45 +650,68 @@ const styles = StyleSheet.create({
   },
   numericInput: {
     flex: 1,
-    height: 54,
+    height: 50,
     borderRadius: 14,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     borderWidth: 1.2,
     textAlign: 'center',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '600',
+  },
+  lineSubtotalRow: {
+    alignItems: 'flex-end',
+    marginTop: 8,
+  },
+  lineSubtotalText: {
+    fontSize: 13,
+    fontWeight: '500',
   },
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 20,
+    marginVertical: 14,
     paddingVertical: 14,
     borderRadius: 16,
   },
   addIcon: {
-    marginRight: 10,
+    marginRight: 8,
   },
   addButtonText: {
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: 15,
   },
-  totalRow: {
+  summaryCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
-    padding: 18,
-    borderRadius: 16,
-    marginVertical: 16,
+    paddingVertical: 16,
     marginHorizontal: 12,
+    marginVertical: 10,
+    borderRadius: 18,
+    borderWidth: 1,
+    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
   },
-  totalLabel: {
+  summaryStatItem: {
+    alignItems: 'center',
+  },
+  summaryStatLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  summaryStatValue: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
+    marginTop: 2,
   },
-  totalValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  summaryDivider: {
+    width: 1,
+    height: 30,
   },
   printButton: {
     paddingVertical: 18,
@@ -586,6 +719,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     elevation: 6,
+    marginVertical: 20,
     marginBottom: 40,
   },
   printText: {
