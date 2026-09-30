@@ -22,8 +22,14 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
+      {
         test: /\.(js|jsx|ts|tsx)$/,
-        exclude: /node_modules\/(?!(react-native-vector-icons|react-native-element-dropdown|react-native-reanimated|react-native-worklets|react-native-safe-area-context)\/).*/,
+        exclude: /node_modules\/(?!(react-native-vector-icons|react-native-element-dropdown|react-native-reanimated|react-native-worklets|react-native-safe-area-context|@react-navigation)\/).*/,
         use: {
           loader: 'babel-loader',
           options: {
