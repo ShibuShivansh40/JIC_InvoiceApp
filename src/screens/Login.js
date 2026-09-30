@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
@@ -70,8 +71,12 @@ export default function Login() {
         {/* Card */}
         <View style={[styles.card, { backgroundColor: theme.cardBackground, shadowColor: theme.cardShadow }]}>
           {/* Logo / Header */}
-          <View style={[styles.iconCircle, { backgroundColor: theme.accent + '18' }]}>
-            <Icon name="receipt" size={38} color={theme.accent} />
+          <View style={styles.logoWrapper}>
+            <Image
+              source={require('../../public/icon-192.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
 
           <Text style={[styles.title, { color: theme.textPrimary }]}>Jai Industrial Corp</Text>
@@ -188,13 +193,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 16,
   },
-  iconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
+  logoWrapper: {
+    width: 80,
+    height: 80,
     marginBottom: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     fontSize: 22,
