@@ -285,9 +285,13 @@ const CreateInvoice = ({ navigation, route }) => {
         ) : (
           <Dropdown
             style={[styles.dropdown, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}
+            containerStyle={[styles.dropdownMenuContainer, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+            itemTextStyle={{ color: theme.textPrimary }}
+            itemContainerStyle={{ backgroundColor: theme.cardBackground }}
+            activeColor={isDarkMode ? '#2C2C2E' : '#F0F7FF'}
             placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
             selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
-            inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary }]}
+            inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary, borderColor: theme.border }]}
             data={clients}
             search
             maxHeight={300}
@@ -354,18 +358,23 @@ const CreateInvoice = ({ navigation, route }) => {
                   </TouchableOpacity>
                 </View>
 
+                {/* Select Product Dropdown */}
                 <Dropdown
-                  style={[styles.itemDropdown, { borderColor: theme.border }]}
+                  style={[styles.itemDropdown, { borderColor: theme.border, backgroundColor: theme.cardBackground }]}
+                  containerStyle={[styles.dropdownMenuContainer, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+                  itemTextStyle={{ color: theme.textPrimary }}
+                  itemContainerStyle={{ backgroundColor: theme.cardBackground }}
+                  activeColor={isDarkMode ? '#2C2C2E' : '#F0F7FF'}
                   placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
                   selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
-                  inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary }]}
+                  inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary, borderColor: theme.border }]}
                   data={products}
                   search
                   maxHeight={300}
                   labelField="label"
                   valueField="value"
                   placeholder="Select Product"
-                  searchPlaceholder="Search..."
+                  searchPlaceholder="Search products..."
                   value={item.name}
                   onChange={selected => handleItemChange(index, 'name', selected.value)}
                 />
@@ -373,6 +382,10 @@ const CreateInvoice = ({ navigation, route }) => {
                 <View style={styles.row}>
                   <Dropdown
                     style={[styles.dropdownCategory, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+                    containerStyle={[styles.dropdownMenuContainer, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+                    itemTextStyle={{ color: theme.textPrimary }}
+                    itemContainerStyle={{ backgroundColor: theme.cardBackground }}
+                    activeColor={isDarkMode ? '#2C2C2E' : '#F0F7FF'}
                     placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
                     selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
                     data={CATEGORY_DATA}
@@ -570,6 +583,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderWidth: 1.2,
   },
+  dropdownMenuContainer: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
   placeholderStyle: {
     fontSize: 15,
     fontWeight: '500',
@@ -579,10 +597,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   inputSearchStyle: {
-    height: 48,
+    height: 44,
     fontSize: 15,
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 12,
+    marginHorizontal: 8,
+    marginVertical: 8,
+    borderWidth: 1,
   },
   addLink: {
     marginTop: 10,
@@ -642,6 +663,9 @@ const styles = StyleSheet.create({
   itemDropdown: {
     height: 50,
     marginBottom: 12,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    borderWidth: 1.2,
   },
   row: {
     flexDirection: 'row',

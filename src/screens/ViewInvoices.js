@@ -73,9 +73,13 @@ const ListHeader = ({
     <View style={styles.filterRow}>
       <Dropdown
         style={[styles.dropdown, { flex: 1.5, backgroundColor: theme.inputBackground, borderColor: theme.border }]}
+        containerStyle={{ backgroundColor: theme.cardBackground, borderColor: theme.border, borderRadius: 16, overflow: 'hidden' }}
+        itemTextStyle={{ color: theme.textPrimary }}
+        itemContainerStyle={{ backgroundColor: theme.cardBackground }}
+        activeColor={isDarkMode ? '#2C2C2E' : '#F0F7FF'}
         placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
         selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
-        inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary }]}
+        inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary, borderColor: theme.border }]}
         data={[{ label: 'All Clients', value: 'all' }, ...clients]}
         search
         maxHeight={300}
@@ -88,6 +92,10 @@ const ListHeader = ({
       />
       <Dropdown
         style={[styles.dropdown, { flex: 1, backgroundColor: theme.inputBackground, borderColor: theme.border }]}
+        containerStyle={{ backgroundColor: theme.cardBackground, borderColor: theme.border, borderRadius: 16, overflow: 'hidden' }}
+        itemTextStyle={{ color: theme.textPrimary }}
+        itemContainerStyle={{ backgroundColor: theme.cardBackground }}
+        activeColor={isDarkMode ? '#2C2C2E' : '#F0F7FF'}
         placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
         selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
         data={MONTHS}
