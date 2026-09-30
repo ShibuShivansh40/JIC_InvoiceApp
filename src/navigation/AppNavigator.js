@@ -1,25 +1,34 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Dashboard from '../screens/Dashboard';
 import CreateInvoice from '../screens/CreateInvoice';
 import ViewInvoices from '../screens/ViewInvoices';
 import PDFPreview from '../screens/PDFViewer';
+import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 
 export default function AppNavigator() {
+  const { theme, isDarkMode } = useTheme();
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#F8F9FB' }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarShowLabel: false,
-          tabBarStyle: styles.tabBar,
-          tabBarActiveTintColor: '#000', // Solid black for active state
-          tabBarInactiveTintColor: '#ADB5BD', // Soft grey for inactive
+          tabBarStyle: [
+            styles.tabBar,
+            {
+              backgroundColor: theme.cardBackground,
+              shadowColor: theme.cardShadow,
+            },
+          ],
+          tabBarActiveTintColor: theme.accent,
+          tabBarInactiveTintColor: isDarkMode ? '#6C757D' : '#ADB5BD',
           headerShown: false,
-          tabBarIcon: ({ focused, color, size }) => {
+          tabBarIcon: ({ focused, color }) => {
             let iconName;
             if (route.name === 'Home') iconName = focused ? 'home' : 'home-outline';
             else if (route.name === 'Create') iconName = focused ? 'add-circle' : 'add-circle-outline';
@@ -29,7 +38,7 @@ export default function AppNavigator() {
             return (
               <View style={styles.iconContainer}>
                 <Icon name={iconName} size={24} color={color} />
-                {focused && <View style={styles.activeDot} />}
+                {focused && <View style={[styles.activeDot, { backgroundColor: theme.accent }]} />}
               </View>
             );
           },
@@ -49,19 +58,16 @@ export default function AppNavigator() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 15,
     left: 25,
     right: 25,
-    height: 55,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    height: 60,
+    borderRadius: 25,
     borderTopWidth: 0,
-    // Elegant Shadow
-    shadowColor: '#000',
+    elevation: 8,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
   },
   iconContainer: {
     alignItems: 'center',
@@ -71,10 +77,9 @@ const styles = StyleSheet.create({
   },
   activeDot: {
     position: 'absolute',
-    bottom: -10,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#000',
+    bottom: 6,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
   }
 });

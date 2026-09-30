@@ -5,6 +5,7 @@ import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { saveInvoice } from '../database/db';
 import { API_URL, API_KEY } from '../config';
+import { useTheme } from '../context/ThemeContext';
 
 const CATEGORY_DATA = [
   { label: 'Colored', value: 'Colored' },
@@ -29,6 +30,8 @@ const CreateInvoice = ({ navigation, route }) => {
   const [loadingClients, setLoadingClients] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
+
+  const { theme, isDarkMode } = useTheme();
 
   useEffect(() => {
     fetchClients();
@@ -229,21 +232,21 @@ const CreateInvoice = ({ navigation, route }) => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.heading}>{isEditMode ? 'Edit Memo' : 'Create New Memo'}</Text>
+    <ScrollView style={[styles.container, { backgroundColor: theme.background }]} contentContainerStyle={styles.contentContainer}>
+      <View style={[styles.headerContainer, { backgroundColor: theme.headerBackground, borderColor: theme.border }]}>
+        <Text style={[styles.heading, { color: theme.textPrimary }]}>{isEditMode ? 'Edit Memo' : 'Create New Memo'}</Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>Client</Text>
+      <View style={[styles.section, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+        <Text style={[styles.sectionLabel, { color: theme.textPrimary }]}>Client</Text>
         {loadingClients ? (
-          <ActivityIndicator color="#007AFF" />
+          <ActivityIndicator color={theme.accent} />
         ) : (
           <Dropdown
-            style={styles.dropdown}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
-            inputSearchStyle={styles.inputSearchStyle}
+            style={[styles.dropdown, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}
+            placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
+            selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
+            inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary }]}
             data={clients}
             search
             maxHeight={300}
@@ -256,37 +259,48 @@ const CreateInvoice = ({ navigation, route }) => {
           />
         )}
         <TouchableOpacity style={styles.addLink} onPress={() => setClientModalVisible(true)}>
-          <Text style={styles.addLinkText}>+ Add New Client</Text>
+          <Text style={[styles.addLinkText, { color: theme.accent }]}>+ Add New Client</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>Details</Text>
+      <View style={[styles.section, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+        <Text style={[styles.sectionLabel, { color: theme.textPrimary }]}>Details</Text>
         <View style={styles.inputRow}>
-          <MaterialIcons name="lock" size={20} color="#999" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="Reference No. (Auto)" value={refNo} editable={false} />
+          <MaterialIcons name="lock" size={20} color={theme.textSecondary} style={styles.icon} />
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.textSecondary }]}
+            placeholder="Reference No. (Auto)"
+            value={refNo}
+            editable={false}
+          />
         </View>
-        <TextInput style={styles.input} placeholder="Date (DD/MM/YYYY)" value={date} onChangeText={setDate} />
+        <TextInput
+          style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.textPrimary }]}
+          placeholder="Date (DD/MM/YYYY)"
+          value={date}
+          onChangeText={setDate}
+          placeholderTextColor={theme.textSecondary}
+        />
       </View>
 
-      <View style={styles.section}>
+      <View style={[styles.section, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
         <View style={styles.itemsHeader}>
-          <Text style={styles.sectionLabel}>Items</Text>
+          <Text style={[styles.sectionLabel, { color: theme.textPrimary }]}>Items</Text>
           <TouchableOpacity style={styles.addLink} onPress={() => setProductModalVisible(true)}>
-            <Text style={styles.addLinkText}>+ Add New Product</Text>
+            <Text style={[styles.addLinkText, { color: theme.accent }]}>+ Add New Product</Text>
           </TouchableOpacity>
         </View>
-        {loadingProducts ? <ActivityIndicator color="#007AFF" /> : (
+        {loadingProducts ? <ActivityIndicator color={theme.accent} /> : (
           items.map((item, index) => (
-            <View key={index} style={styles.itemBox}>
-              <TouchableOpacity style={styles.deleteIcon} onPress={() => handleRemoveItem(index)}>
+            <View key={index} style={[styles.itemBox, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}>
+              <TouchableOpacity style={[styles.deleteIcon, { backgroundColor: isDarkMode ? '#3A1C1C' : '#FFF0F0' }]} onPress={() => handleRemoveItem(index)}>
                 <MaterialIcons name="close" size={16} color="#FF3B30" />
               </TouchableOpacity>
               <Dropdown
-                style={styles.itemDropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
+                style={[styles.itemDropdown, { borderColor: theme.border }]}
+                placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
+                selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
+                inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary }]}
                 data={products}
                 search
                 maxHeight={300}
@@ -299,9 +313,9 @@ const CreateInvoice = ({ navigation, route }) => {
               />
               <View style={styles.row}>
                 <Dropdown
-                  style={styles.dropdownCategory}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
+                  style={[styles.dropdownCategory, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
+                  placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
+                  selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
                   data={CATEGORY_DATA}
                   labelField="label"
                   valueField="value"
@@ -310,17 +324,17 @@ const CreateInvoice = ({ navigation, route }) => {
                   onChange={selected => handleItemChange(index, 'category', selected.value)}
                 />
                 <TextInput
-                  style={[styles.numericInput, { color: '#007AFF' }]}
+                  style={[styles.numericInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.accent }]}
                   placeholder="Qty"
-                  placeholderTextColor="#A0D2FF"
+                  placeholderTextColor={theme.textSecondary}
                   keyboardType="numeric"
                   value={String(item.qty ?? '')}
                   onChangeText={value => handleItemChange(index, 'qty', value)}
                 />
                 <TextInput
-                  style={[styles.numericInput, { color: '#2ecc71' }]}
+                  style={[styles.numericInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.success }]}
                   placeholder="Rate"
-                  placeholderTextColor="#A3E4D7"
+                  placeholderTextColor={theme.textSecondary}
                   keyboardType="numeric"
                   value={String(item.rate ?? '')}
                   onChangeText={value => handleItemChange(index, 'rate', value)}
@@ -329,43 +343,45 @@ const CreateInvoice = ({ navigation, route }) => {
             </View>
           ))
         )}
-        <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
-          <MaterialIcons name="add-circle" size={24} color="#007AFF" style={styles.addIcon} />
-          <Text style={styles.addButtonText}>Add Another Item</Text>
+        <TouchableOpacity style={[styles.addButton, { backgroundColor: isDarkMode ? '#1E293B' : '#F0F7FF' }]} onPress={handleAddItem}>
+          <MaterialIcons name="add-circle" size={24} color={theme.accent} style={styles.addIcon} />
+          <Text style={[styles.addButtonText, { color: theme.accent }]}>Add Another Item</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.totalRow}>
-        <Text style={styles.totalLabel}>Grand Total</Text>
-        <Text style={styles.totalValue}>₹ {total.toLocaleString('en-IN')}</Text>
+      <View style={[styles.totalRow, { backgroundColor: isDarkMode ? '#1C3829' : '#E8F5E9' }]}>
+        <Text style={[styles.totalLabel, { color: theme.textPrimary }]}>Grand Total</Text>
+        <Text style={[styles.totalValue, { color: theme.success }]}>₹ {total.toLocaleString('en-IN')}</Text>
       </View>
 
-      <TouchableOpacity style={styles.printButton} onPress={handleSyncAndPrint}>
+      <TouchableOpacity style={[styles.printButton, { backgroundColor: isDarkMode ? theme.accent : '#111111' }]} onPress={handleSyncAndPrint}>
         <Text style={styles.printText}>{isEditMode ? 'Update & Preview PDF' : 'Generate & Preview PDF'}</Text>
       </TouchableOpacity>
 
       {/* Client Modal */}
       <Modal visible={isClientModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add New Client</Text>
+          <View style={[styles.modalContent, { backgroundColor: theme.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: theme.textPrimary }]}>Add New Client</Text>
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { borderColor: theme.border, color: theme.textPrimary }]}
               placeholder="Client Name"
+              placeholderTextColor={theme.textSecondary}
               value={newClientName}
               onChangeText={setNewClientName}
             />
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { borderColor: theme.border, color: theme.textPrimary }]}
               placeholder="Reference / Address"
+              placeholderTextColor={theme.textSecondary}
               value={newClientAddress}
               onChangeText={setNewClientAddress}
             />
             <View style={styles.modalBtnRow}>
               <TouchableOpacity onPress={() => setClientModalVisible(false)} style={styles.cancelBtn}>
-                <Text style={styles.btnText}>Cancel</Text>
+                <Text style={[styles.btnText, { color: theme.textSecondary }]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleAddClient} style={styles.saveBtn}>
+              <TouchableOpacity onPress={handleAddClient} style={[styles.saveBtn, { backgroundColor: theme.accent }]}>
                 <Text style={styles.btnTextWhite}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -376,25 +392,27 @@ const CreateInvoice = ({ navigation, route }) => {
       {/* Product Modal */}
       <Modal visible={isProductModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add New Product</Text>
+          <View style={[styles.modalContent, { backgroundColor: theme.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: theme.textPrimary }]}>Add New Product</Text>
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { borderColor: theme.border, color: theme.textPrimary }]}
               placeholder="Product Name"
+              placeholderTextColor={theme.textSecondary}
               value={newProductName}
               onChangeText={setNewProductName}
             />
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { borderColor: theme.border, color: theme.textPrimary }]}
               placeholder="Item Code (e.g. BHACT110-01)"
+              placeholderTextColor={theme.textSecondary}
               value={newProductCode}
               onChangeText={setNewProductCode}
             />
             <View style={styles.modalBtnRow}>
               <TouchableOpacity onPress={() => setProductModalVisible(false)} style={styles.cancelBtn}>
-                <Text style={styles.btnText}>Cancel</Text>
+                <Text style={[styles.btnText, { color: theme.textSecondary }]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleAddProduct} style={styles.saveBtn}>
+              <TouchableOpacity onPress={handleAddProduct} style={[styles.saveBtn, { backgroundColor: theme.accent }]}>
                 <Text style={styles.btnTextWhite}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -406,77 +424,66 @@ const CreateInvoice = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FB' },
+  container: { flex: 1 },
   contentContainer: { paddingBottom: 120 },
   headerContainer: {
     padding: 24,
     paddingTop: 50,
-    backgroundColor: '#ffffff',
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
     elevation: 6,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
+    borderBottomWidth: 1,
   },
   heading: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1a1a1a',
     textAlign: 'center',
     letterSpacing: 0.2,
   },
   section: {
     marginVertical: 12,
     padding: 20,
-    backgroundColor: '#ffffff',
     borderRadius: 20,
     elevation: 3,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     marginHorizontal: 12,
+    borderWidth: 1,
   },
   sectionLabel: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#222',
     marginBottom: 12,
   },
   dropdown: {
     height: 54,
     borderRadius: 14,
     paddingHorizontal: 16,
-    backgroundColor: '#f9f9f9',
     borderWidth: 1.2,
-    borderColor: '#e0e0e0',
   },
   dropdownCategory: {
     flex: 2.2,
     height: 54,
     borderRadius: 14,
     paddingHorizontal: 16,
-    backgroundColor: '#f9f9f9',
     borderWidth: 1.2,
-    borderColor: '#e0e0e0',
   },
   placeholderStyle: {
     fontSize: 16,
-    color: '#888',
     fontWeight: '500',
   },
   selectedTextStyle: {
     fontSize: 16.5,
-    color: '#111',
     fontWeight: '600',
   },
   inputSearchStyle: {
     height: 48,
     fontSize: 16,
     borderRadius: 12,
-    backgroundColor: '#f1f3f5',
     paddingHorizontal: 12,
   },
   addLink: {
@@ -484,7 +491,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   addLinkText: {
-    color: '#0066FF',
     fontSize: 15,
     fontWeight: '600',
   },
@@ -501,11 +507,8 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 14,
     paddingHorizontal: 16,
-    backgroundColor: '#f9f9f9',
     borderWidth: 1.2,
-    borderColor: '#e0e0e0',
     fontSize: 16,
-    color: '#111',
   },
   itemsHeader: {
     flexDirection: 'row',
@@ -517,16 +520,13 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     padding: 18,
     borderRadius: 16,
-    backgroundColor: '#f9f9f9',
     borderWidth: 1.2,
-    borderColor: '#e0e0e0',
   },
   deleteIcon: {
     position: 'absolute',
     top: 12,
     right: 12,
     padding: 6,
-    backgroundColor: '#fff0f0',
     borderRadius: 20,
   },
   itemDropdown: {
@@ -543,9 +543,7 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 14,
     paddingHorizontal: 12,
-    backgroundColor: '#fff',
     borderWidth: 1.2,
-    borderColor: '#e0e0e0',
     textAlign: 'center',
     fontSize: 17,
     fontWeight: '600',
@@ -556,14 +554,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 20,
     paddingVertical: 14,
-    backgroundColor: '#f0f7ff',
     borderRadius: 16,
   },
   addIcon: {
     marginRight: 10,
   },
   addButtonText: {
-    color: '#0066FF',
     fontWeight: '700',
     fontSize: 16,
   },
@@ -572,7 +568,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 18,
-    backgroundColor: '#e8f5e9',
     borderRadius: 16,
     marginVertical: 16,
     marginHorizontal: 12,
@@ -580,15 +575,12 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1a1a1a',
   },
   totalValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#27ae60',
   },
   printButton: {
-    backgroundColor: '#111111',
     paddingVertical: 18,
     marginHorizontal: 12,
     borderRadius: 16,
@@ -608,7 +600,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#ffffff',
     padding: 28,
     borderRadius: 24,
     width: '88%',
@@ -617,17 +608,14 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111',
     marginBottom: 20,
     textAlign: 'center',
   },
   modalInput: {
     borderBottomWidth: 1.5,
-    borderColor: '#ccc',
     marginBottom: 24,
     paddingVertical: 10,
     fontSize: 16,
-    color: '#111',
   },
   modalBtnRow: {
     flexDirection: 'row',
@@ -639,13 +627,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   saveBtn: {
-    backgroundColor: '#007AFF',
     paddingVertical: 12,
     paddingHorizontal: 28,
     borderRadius: 12,
   },
   btnText: {
-    color: '#007AFF',
     fontWeight: '600',
     fontSize: 16,
   },

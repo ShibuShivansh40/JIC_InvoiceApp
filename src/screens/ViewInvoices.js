@@ -5,6 +5,7 @@ import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Share from 'react-native-share';
 import { API_URL, API_KEY } from '../config';
+import { useTheme } from '../context/ThemeContext';
 
 const MONTHS = [
   { label: 'All Months', value: 'all' },
@@ -34,13 +35,15 @@ const ListHeader = ({
   onSelectAll,
   isAllSelected,
   onExportCSV,
-  isExporting
+  isExporting,
+  theme,
+  isDarkMode
 }) => (
-  <View style={styles.headerContainer}>
+  <View style={[styles.headerContainer, { backgroundColor: theme.headerBackground, borderColor: theme.border }]}>
     <View style={styles.titleRow}>
       <View>
-        <Text style={styles.mainHeading}>Invoice History</Text>
-        <Text style={styles.subHeading}>
+        <Text style={[styles.mainHeading, { color: theme.textPrimary }]}>Invoice History</Text>
+        <Text style={[styles.subHeading, { color: theme.accent }]}>
           {selectionCount > 0 ? `${selectionCount} selected` : 'Pull down to refresh'}
         </Text>
       </View>
@@ -61,18 +64,18 @@ const ListHeader = ({
             <MaterialIcons name="assessment" size={24} color="#FFF" />
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={onRefresh} style={styles.iconButton}>
-          <MaterialIcons name="refresh" size={24} color="#007AFF" />
+        <TouchableOpacity onPress={onRefresh} style={[styles.iconButton, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F0F7FF' }]}>
+          <MaterialIcons name="refresh" size={24} color={theme.accent} />
         </TouchableOpacity>
       </View>
     </View>
 
     <View style={styles.filterRow}>
       <Dropdown
-        style={[styles.dropdown, { flex: 1.5 }]}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
+        style={[styles.dropdown, { flex: 1.5, backgroundColor: theme.inputBackground, borderColor: theme.border }]}
+        placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
+        selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
+        inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary }]}
         data={[{ label: 'All Clients', value: 'all' }, ...clients]}
         search
         maxHeight={300}
@@ -84,9 +87,9 @@ const ListHeader = ({
         onChange={item => setSelectedClient(item.value)}
       />
       <Dropdown
-        style={[styles.dropdown, { flex: 1 }]}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
+        style={[styles.dropdown, { flex: 1, backgroundColor: theme.inputBackground, borderColor: theme.border }]}
+        placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
+        selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
         data={MONTHS}
         maxHeight={300}
         labelField="label"
@@ -101,9 +104,9 @@ const ListHeader = ({
       <MaterialIcons
         name={isAllSelected ? "check-box" : "check-box-outline-blank"}
         size={22}
-        color={isAllSelected ? "#007AFF" : "#666"}
+        color={isAllSelected ? theme.accent : theme.textSecondary}
       />
-      <Text style={styles.selectAllText}>Select All Visible</Text>
+      <Text style={[styles.selectAllText, { color: theme.textPrimary }]}>Select All Visible</Text>
     </TouchableOpacity>
   </View>
 );
@@ -116,6 +119,8 @@ const ViewInvoices = ({ navigation }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [selectedClient, setSelectedClient] = useState('all');
   const [selectedMonth, setSelectedMonth] = useState('all');
+
+  const { theme, isDarkMode } = useTheme();
 
   const fetchRecords = async () => {
     try {
@@ -233,17 +238,12 @@ const ViewInvoices = ({ navigation }) => {
       );
 
       const rows = [];
-      // Main Headers
       rows.push(["INVOICE DETAILS", "", "", "", "", "", ""]);
 
       detailedInvoices.forEach(inv => {
         if (!inv) return;
-
-        // Group Header Row for each invoice
         rows.push(["Ref No", "Client Name", "Date", "Invoice Total", "", "", ""]);
         rows.push([`"${inv.refNo}"`, `"${inv.clientName}"`, `"${inv.date}"`, inv.total, "", "", ""]);
-
-        // Items Sub-header
         rows.push(["", "Item Name", "Code", "Category", "Qty", "Rate", "Amount"]);
 
         if (inv.items && inv.items.length > 0) {
@@ -259,21 +259,17 @@ const ViewInvoices = ({ navigation }) => {
             ]);
           });
         }
-
-        // Blank row for separation
         rows.push(["", "", "", "", "", "", ""]);
       });
 
       const csvContent = rows.map(r => r.join(",")).join("\n");
-
-      // Safe base64 encoding for React Native
       const base64Content = (typeof Buffer !== 'undefined')
         ? Buffer.from(csvContent, 'utf-8').toString('base64')
         : btoa(unescape(encodeURIComponent(csvContent)));
 
       const today = new Date();
       const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-      const filename = `Invoice_Report_${dateStr}`;
+      const filename = `Invoice_Report_${dateStr}.csv`;
 
       const shareOptions = {
         title: 'Export Grouped CSV',
@@ -307,7 +303,7 @@ const ViewInvoices = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <FlatList
         data={filteredRecords}
         keyExtractor={(item) => item.refNo}
@@ -326,17 +322,23 @@ const ViewInvoices = ({ navigation }) => {
             isAllSelected={isAllSelected}
             onExportCSV={handleExportCSV}
             isExporting={isExporting}
+            theme={theme}
+            isDarkMode={isDarkMode}
           />
         }
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#007AFF"]} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.accent]} />
         }
         renderItem={({ item }) => {
           const isSelected = selectedIds.includes(item.refNo);
           return (
             <TouchableOpacity
-              style={[styles.card, isSelected && styles.selectedCard]}
+              style={[
+                styles.card,
+                { backgroundColor: theme.cardBackground, borderColor: isSelected ? theme.accent : theme.border },
+                isSelected && { backgroundColor: isDarkMode ? '#1E293B' : '#F0F7FF' }
+              ]}
               onPress={() => handleItemClick(item.refNo)}
               onLongPress={() => toggleSelection(item.refNo)}
             >
@@ -345,17 +347,17 @@ const ViewInvoices = ({ navigation }) => {
                   <MaterialIcons
                     name={isSelected ? "check-circle" : "radio-button-unchecked"}
                     size={22}
-                    color={isSelected ? "#007AFF" : "#ccc"}
+                    color={isSelected ? theme.accent : theme.textSecondary}
                   />
                 </View>
                 <View>
-                  <Text style={styles.refText}>{item.refNo}</Text>
-                  <Text style={styles.clientText}>{item.clientName}</Text>
+                  <Text style={[styles.refText, { color: theme.accent }]}>{item.refNo}</Text>
+                  <Text style={[styles.clientText, { color: theme.textPrimary }]}>{item.clientName}</Text>
                 </View>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.priceText}>₹ {item.total}</Text>
-                <Text style={styles.dateText}>{item.date}</Text>
+                <Text style={[styles.priceText, { color: theme.success }]}>₹ {item.total}</Text>
+                <Text style={[styles.dateText, { color: theme.textSecondary }]}>{item.date}</Text>
               </View>
             </TouchableOpacity>
           );
@@ -366,58 +368,56 @@ const ViewInvoices = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  listContent: { paddingBottom: 30 },
+  container: { flex: 1 },
+  listContent: { paddingBottom: 100 },
   headerContainer: {
     padding: 20,
     paddingTop: 50,
-    backgroundColor: '#fff',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     marginBottom: 16,
-    elevation: 5,
+    elevation: 4,
+    borderBottomWidth: 1,
   },
   titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
   headerActions: { flexDirection: 'row', gap: 10 },
-  mainHeading: { fontSize: 24, fontWeight: 'bold', color: '#1a1a1a' },
-  subHeading: { fontSize: 13, color: '#007AFF', marginTop: 2, fontWeight: '600' },
-  iconButton: { padding: 8, backgroundColor: '#f0f7ff', borderRadius: 50 },
+  mainHeading: { fontSize: 24, fontWeight: 'bold' },
+  subHeading: { fontSize: 13, marginTop: 2, fontWeight: '600' },
+  iconButton: { padding: 8, borderRadius: 50 },
   summaryIcon: { backgroundColor: '#007AFF' },
-  csvIcon: { backgroundColor: '#2ecc71' },
+  csvIcon: { backgroundColor: '#27AE60' },
   filterRow: { flexDirection: 'row', gap: 10, marginTop: 5 },
   dropdown: {
-    height: 45,
-    backgroundColor: '#f8f9fa',
+    height: 46,
     borderRadius: 12,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: '#eee',
   },
-  placeholderStyle: { fontSize: 14, color: '#999' },
-  selectedTextStyle: { fontSize: 14, color: '#333', fontWeight: '500' },
+  placeholderStyle: { fontSize: 14 },
+  selectedTextStyle: { fontSize: 14, fontWeight: '500' },
   inputSearchStyle: { height: 40, fontSize: 14, borderRadius: 8 },
   selectAllRow: { flexDirection: 'row', alignItems: 'center', marginTop: 15, paddingHorizontal: 5 },
-  selectAllText: { marginLeft: 8, fontSize: 14, color: '#444', fontWeight: '500' },
+  selectAllText: { marginLeft: 8, fontSize: 14, fontWeight: '500' },
   card: {
-    backgroundColor: 'white',
     padding: 18,
     marginHorizontal: 16,
     marginBottom: 12,
-    borderRadius: 12,
+    borderRadius: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     elevation: 3,
     borderWidth: 1,
-    borderColor: 'transparent',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
   },
-  selectedCard: { borderColor: '#007AFF', backgroundColor: '#f0f7ff' },
   cardMain: { flexDirection: 'row', alignItems: 'center' },
   checkIcon: { marginRight: 12 },
-  refText: { fontWeight: 'bold', fontSize: 13, color: '#007AFF' },
-  clientText: { fontSize: 16, fontWeight: '500', color: '#333', marginTop: 2 },
-  priceText: { fontSize: 16, fontWeight: 'bold', color: '#2ecc71' },
-  dateText: { fontSize: 11, color: '#999', marginTop: 2 }
+  refText: { fontWeight: 'bold', fontSize: 13 },
+  clientText: { fontSize: 16, fontWeight: '600', marginTop: 2 },
+  priceText: { fontSize: 16, fontWeight: 'bold' },
+  dateText: { fontSize: 11, marginTop: 2 }
 });
 
 export default ViewInvoices;

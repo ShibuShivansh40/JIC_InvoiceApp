@@ -6,8 +6,10 @@ import Share from 'react-native-share';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { API_URL, API_KEY } from '../config';
+import { useTheme } from '../context/ThemeContext';
 
 const PDFPreview = ({ route, navigation }) => {
+  const { theme, isDarkMode } = useTheme();
   const rawData = route.params?.pdfData;
   const refNo = route.params?.refNo;
   const pdfData = rawData ? rawData.replace(/\s/g, '') : null;
@@ -57,20 +59,12 @@ const PDFPreview = ({ route, navigation }) => {
         headers: { 'x-api-key': API_KEY }
       });
 
-      console.log('Server response status:', res.status);
-      console.log('Server response data:', res.data);
-
       if (res.status === 200 && res.data && Object.keys(res.data).length > 0) {
         navigation.navigate('Create', { invoiceData: res.data });
       } else {
-        console.log('Invalid response:', res.data);
         Alert.alert('Error', 'Invoice data not found or empty');
       }
     } catch (err) {
-      console.log('Edit request failed - status:', err.response?.status);
-      console.log('Error response data:', err.response?.data);
-      console.log('Full error:', err.message);
-
       let errorMsg = 'Failed to load invoice for edit';
       if (err.response?.status === 401) {
         errorMsg = 'Unauthorized - Check API key';
@@ -87,9 +81,9 @@ const PDFPreview = ({ route, navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={28} color="#000" />
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.cardBackground }]} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={26} color={theme.textPrimary} />
       </TouchableOpacity>
 
       {pdfSource ? (
@@ -98,13 +92,13 @@ const PDFPreview = ({ route, navigation }) => {
           source={{ uri: pdfSource, cache: true }}
           style={styles.pdf}
           singlePage={true}
-          activityIndicator={<ActivityIndicator color="#007AFF" size="large" />}
+          activityIndicator={<ActivityIndicator color={theme.accent} size="large" />}
           onLoadComplete={(numberOfPages) => console.log(`PDF loaded: ${numberOfPages} pages`)}
           onError={(error) => console.log('PDF Render Error:', error)}
         />
       ) : (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>No PDF data available</Text>
+          <Text style={[styles.errorText, { color: theme.textSecondary }]}>No PDF data available</Text>
         </View>
       )}
 
@@ -113,13 +107,13 @@ const PDFPreview = ({ route, navigation }) => {
           <Ionicons name="share-social" size={20} color="#FFF" style={styles.btnIcon} />
           <Text style={styles.btnText}>Share</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, styles.printBtn]} onPress={handlePrint}>
+        <TouchableOpacity style={[styles.actionBtn, styles.printBtn, { backgroundColor: isDarkMode ? '#3A3A3C' : '#111' }]} onPress={handlePrint}>
           <Ionicons name="print" size={20} color="#FFF" style={styles.btnIcon} />
           <Text style={styles.btnText}>Print</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionBtn, styles.editBtn]} onPress={handleEdit}>
-          <Ionicons name="pencil" size={20} color="#FFF" style={styles.btnIcon} />
-          <Text style={styles.btnText}>Edit</Text>
+          <Ionicons name="pencil" size={20} color="#111" style={styles.btnIcon} />
+          <Text style={[styles.btnText, { color: '#111' }]}>Edit</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -127,10 +121,11 @@ const PDFPreview = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FB' },
+  container: { flex: 1 },
   backBtn: {
-    position: 'absolute', top: 40, left: 20, zIndex: 101,
-    backgroundColor: '#FFF', padding: 10, borderRadius: 50, elevation: 5,
+    position: 'absolute', top: 45, left: 20, zIndex: 101,
+    padding: 10, borderRadius: 50, elevation: 5,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 6,
   },
   pdf: { flex: 1, width: Dimensions.get('window').width, height: Dimensions.get('window').height },
   buttonRow: {
@@ -140,17 +135,17 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     flexDirection: 'row', alignItems: 'center',
-    paddingVertical: 14, paddingHorizontal: 24,
+    paddingVertical: 14, paddingHorizontal: 22,
     borderRadius: 30, elevation: 8,
     shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 4,
   },
   shareBtn: { backgroundColor: '#007AFF' },
   printBtn: { backgroundColor: '#111' },
   editBtn: { backgroundColor: '#FFC107' },
-  btnText: { color: '#FFF', fontWeight: '700', fontSize: 16 },
-  btnIcon: { marginRight: 8 },
+  btnText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
+  btnIcon: { marginRight: 6 },
   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { color: '#666', fontSize: 16 },
+  errorText: { fontSize: 16 },
 });
 
 export default PDFPreview;
