@@ -93,10 +93,7 @@ const ListHeader = ({
         value={selectedClient}
         onChange={item => setSelectedClient(item.value)}
         flatListProps={{
-          style: {
-            maxHeight: 250,
-            ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
-          },
+          style: { maxHeight: 250 },
           nestedScrollEnabled: true,
           showsVerticalScrollIndicator: true,
           scrollEnabled: true,
@@ -122,10 +119,7 @@ const ListHeader = ({
         value={selectedMonth}
         onChange={item => setSelectedMonth(item.value)}
         flatListProps={{
-          style: {
-            maxHeight: 250,
-            ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
-          },
+          style: { maxHeight: 250 },
           nestedScrollEnabled: true,
           showsVerticalScrollIndicator: true,
           scrollEnabled: true,
@@ -338,28 +332,26 @@ const ViewInvoices = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <ListHeader
+        onRefresh={onRefresh}
+        selectionCount={selectedIds.length}
+        onGenerateSummary={handleGenerateSummary}
+        selectedClient={selectedClient}
+        setSelectedClient={setSelectedClient}
+        clients={clients}
+        selectedMonth={selectedMonth}
+        setSelectedMonth={setSelectedMonth}
+        onSelectAll={handleSelectAll}
+        isAllSelected={isAllSelected}
+        onExportCSV={handleExportCSV}
+        isExporting={isExporting}
+        theme={theme}
+        isDarkMode={isDarkMode}
+      />
       <FlatList
         data={filteredRecords}
         keyExtractor={(item) => item.refNo}
         contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
-          <ListHeader
-            onRefresh={onRefresh}
-            selectionCount={selectedIds.length}
-            onGenerateSummary={handleGenerateSummary}
-            selectedClient={selectedClient}
-            setSelectedClient={setSelectedClient}
-            clients={clients}
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-            onSelectAll={handleSelectAll}
-            isAllSelected={isAllSelected}
-            onExportCSV={handleExportCSV}
-            isExporting={isExporting}
-            theme={theme}
-            isDarkMode={isDarkMode}
-          />
-        }
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.accent]} />

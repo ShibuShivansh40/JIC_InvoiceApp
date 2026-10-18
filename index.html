@@ -35,44 +35,28 @@
     input, select, textarea {
       outline: none;
     }
-    /* Dropdown FlatList Scrolling & Visible Scroller */
-    [data-testid*="flatlist"],
-    div[data-testid*="flatlist"],
-    div[style*="overflow: auto"],
-    div[style*="overflow: scroll"],
-    div[style*="overflow-y: auto"],
-    div[style*="overflow-y: scroll"],
-    div[style*="max-height"],
-    div[style*="maxHeight"] {
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      -webkit-overflow-scrolling: touch !important;
-      touch-action: pan-y !important;
-      overscroll-behavior: contain !important;
+    /* Dropdown FlatList Visible Scrollbar */
+    [data-testid*="flatlist"] {
       scrollbar-width: thin !important;
       scrollbar-color: #007AFF rgba(0, 0, 0, 0.08) !important;
     }
 
-    [data-testid*="flatlist"]::-webkit-scrollbar,
-    div[data-testid*="flatlist"]::-webkit-scrollbar {
+    [data-testid*="flatlist"]::-webkit-scrollbar {
       display: block !important;
       width: 6px !important;
     }
 
-    [data-testid*="flatlist"]::-webkit-scrollbar-track,
-    div[data-testid*="flatlist"]::-webkit-scrollbar-track {
+    [data-testid*="flatlist"]::-webkit-scrollbar-track {
       background: rgba(0, 0, 0, 0.05) !important;
       border-radius: 4px !important;
     }
 
-    [data-testid*="flatlist"]::-webkit-scrollbar-thumb,
-    div[data-testid*="flatlist"]::-webkit-scrollbar-thumb {
+    [data-testid*="flatlist"]::-webkit-scrollbar-thumb {
       background: #007AFF !important;
       border-radius: 4px !important;
     }
 
-    [data-testid*="flatlist"]::-webkit-scrollbar-thumb:hover,
-    div[data-testid*="flatlist"]::-webkit-scrollbar-thumb:hover {
+    [data-testid*="flatlist"]::-webkit-scrollbar-thumb:hover {
       background: #0056b3 !important;
     }
   </style>

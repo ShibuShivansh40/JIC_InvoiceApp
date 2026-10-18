@@ -305,10 +305,7 @@ const CreateInvoice = ({ navigation, route }) => {
             value={clientName}
             onChange={item => setClientName(item.value)}
             flatListProps={{
-              style: {
-                maxHeight: 250,
-                ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
-              },
+              style: { maxHeight: 250 },
               nestedScrollEnabled: true,
               showsVerticalScrollIndicator: true,
               scrollEnabled: true,
@@ -394,10 +391,7 @@ const CreateInvoice = ({ navigation, route }) => {
                   value={item.name}
                   onChange={selected => handleItemChange(index, 'name', selected.value)}
                   flatListProps={{
-                    style: {
-                      maxHeight: 250,
-                      ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
-                    },
+                    style: { maxHeight: 250 },
                     nestedScrollEnabled: true,
                     showsVerticalScrollIndicator: true,
                     scrollEnabled: true,
@@ -425,10 +419,7 @@ const CreateInvoice = ({ navigation, route }) => {
                     value={item.category}
                     onChange={selected => handleItemChange(index, 'category', selected.value)}
                     flatListProps={{
-                      style: {
-                        maxHeight: 200,
-                        ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
-                      },
+                      style: { maxHeight: 200 },
                       nestedScrollEnabled: true,
                       showsVerticalScrollIndicator: true,
                       scrollEnabled: true,
