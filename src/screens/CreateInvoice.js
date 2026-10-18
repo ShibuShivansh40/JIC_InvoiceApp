@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, ActivityIndicator, Platform } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -297,6 +297,7 @@ const CreateInvoice = ({ navigation, route }) => {
             maxHeight={280}
             inverted={false}
             dropdownPosition="bottom"
+            showsVerticalScrollIndicator={true}
             labelField="label"
             valueField="value"
             placeholder="Select Client"
@@ -304,7 +305,10 @@ const CreateInvoice = ({ navigation, route }) => {
             value={clientName}
             onChange={item => setClientName(item.value)}
             flatListProps={{
-              style: { maxHeight: 250 },
+              style: {
+                maxHeight: 250,
+                ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
+              },
               nestedScrollEnabled: true,
               showsVerticalScrollIndicator: true,
               scrollEnabled: true,
@@ -382,6 +386,7 @@ const CreateInvoice = ({ navigation, route }) => {
                   maxHeight={280}
                   inverted={false}
                   dropdownPosition="bottom"
+                  showsVerticalScrollIndicator={true}
                   labelField="label"
                   valueField="value"
                   placeholder="Select Product"
@@ -389,7 +394,10 @@ const CreateInvoice = ({ navigation, route }) => {
                   value={item.name}
                   onChange={selected => handleItemChange(index, 'name', selected.value)}
                   flatListProps={{
-                    style: { maxHeight: 250 },
+                    style: {
+                      maxHeight: 250,
+                      ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
+                    },
                     nestedScrollEnabled: true,
                     showsVerticalScrollIndicator: true,
                     scrollEnabled: true,
@@ -410,13 +418,17 @@ const CreateInvoice = ({ navigation, route }) => {
                     maxHeight={200}
                     inverted={false}
                     dropdownPosition="bottom"
+                    showsVerticalScrollIndicator={true}
                     labelField="label"
                     valueField="value"
                     placeholder="Category"
                     value={item.category}
                     onChange={selected => handleItemChange(index, 'category', selected.value)}
                     flatListProps={{
-                      style: { maxHeight: 200 },
+                      style: {
+                        maxHeight: 200,
+                        ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
+                      },
                       nestedScrollEnabled: true,
                       showsVerticalScrollIndicator: true,
                       scrollEnabled: true,

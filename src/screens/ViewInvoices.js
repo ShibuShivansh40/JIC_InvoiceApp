@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { FlatList, TouchableOpacity, View, Text, StyleSheet, RefreshControl, Alert, ActivityIndicator } from 'react-native';
+import { FlatList, TouchableOpacity, View, Text, StyleSheet, RefreshControl, Alert, ActivityIndicator, Platform } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -85,6 +85,7 @@ const ListHeader = ({
         maxHeight={280}
         inverted={false}
         dropdownPosition="bottom"
+        showsVerticalScrollIndicator={true}
         labelField="label"
         valueField="value"
         placeholder="Client"
@@ -92,7 +93,10 @@ const ListHeader = ({
         value={selectedClient}
         onChange={item => setSelectedClient(item.value)}
         flatListProps={{
-          style: { maxHeight: 250 },
+          style: {
+            maxHeight: 250,
+            ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
+          },
           nestedScrollEnabled: true,
           showsVerticalScrollIndicator: true,
           scrollEnabled: true,
@@ -111,13 +115,17 @@ const ListHeader = ({
         maxHeight={280}
         inverted={false}
         dropdownPosition="bottom"
+        showsVerticalScrollIndicator={true}
         labelField="label"
         valueField="value"
         placeholder="Month"
         value={selectedMonth}
         onChange={item => setSelectedMonth(item.value)}
         flatListProps={{
-          style: { maxHeight: 250 },
+          style: {
+            maxHeight: 250,
+            ...(Platform.OS === 'web' ? { overflowY: 'auto', overflowX: 'hidden' } : {}),
+          },
           nestedScrollEnabled: true,
           showsVerticalScrollIndicator: true,
           scrollEnabled: true,
