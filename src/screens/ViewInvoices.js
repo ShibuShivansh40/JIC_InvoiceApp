@@ -400,7 +400,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     borderWidth: 1,
+    justifyContent: 'center',
+    minWidth: 0,
   },
+
   placeholderStyle: { fontSize: 14 },
   selectedTextStyle: { fontSize: 14, fontWeight: '500' },
   inputSearchStyle: { height: 40, fontSize: 14, borderRadius: 8 },

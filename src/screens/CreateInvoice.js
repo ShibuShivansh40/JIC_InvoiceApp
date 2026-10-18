@@ -575,13 +575,16 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 16,
     borderWidth: 1.2,
+    justifyContent: 'center',
   },
   dropdownCategory: {
-    flex: 2.2,
+    flex: 1.4,
     height: 50,
     borderRadius: 14,
-    paddingHorizontal: 14,
+    paddingHorizontal: 10,
     borderWidth: 1.2,
+    justifyContent: 'center',
+    minWidth: 0,
   },
   dropdownMenuContainer: {
     borderRadius: 16,
@@ -589,11 +592,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   placeholderStyle: {
-    fontSize: 15,
+    fontSize: 14.5,
     fontWeight: '500',
   },
   selectedTextStyle: {
-    fontSize: 15.5,
+    fontSize: 14.5,
     fontWeight: '600',
   },
   inputSearchStyle: {
@@ -669,18 +672,21 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
     alignItems: 'center',
+    width: '100%',
   },
   numericInput: {
     flex: 1,
     height: 50,
     borderRadius: 14,
-    paddingHorizontal: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 0,
     borderWidth: 1.2,
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 14.5,
     fontWeight: '600',
+    minWidth: 0,
   },
   lineSubtotalRow: {
     alignItems: 'flex-end',

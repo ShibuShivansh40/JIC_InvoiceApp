@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Dashboard from '../screens/Dashboard';
@@ -15,6 +16,7 @@ const Tab = createBottomTabNavigator();
 export default function AppNavigator() {
   const { theme, isDarkMode } = useTheme();
   const { isAuthenticated, isLoading } = useAuth();
+  const insets = useSafeAreaInsets();
 
   if (isLoading) {
     return (
@@ -38,6 +40,7 @@ export default function AppNavigator() {
             {
               backgroundColor: theme.cardBackground,
               shadowColor: theme.cardShadow,
+              bottom: Math.max(15, (insets?.bottom || 0) + 6),
             },
           ],
           tabBarActiveTintColor: theme.accent,

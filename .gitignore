@@ -65,6 +65,9 @@ yarn-error.log
 
 # App Secrets
 src/config.js
+.env
+.env.*
+
 
 # testing
 /coverage

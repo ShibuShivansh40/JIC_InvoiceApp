@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppRegistry, View, Text, StyleSheet } from 'react-native';
-import App from './App';
+import App from './App.tsx';
+
 
 class WebErrorBoundary extends React.Component {
   state = { hasError: false, error: null };
@@ -11,6 +12,7 @@ class WebErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Web Runtime Error:', error, errorInfo);
+    this.setState({ errorInfo });
   }
 
   render() {
@@ -21,6 +23,11 @@ class WebErrorBoundary extends React.Component {
           <Text style={styles.errorText}>
             {this.state.error?.toString() || 'An error occurred loading the application.'}
           </Text>
+          {this.state.error?.stack && (
+            <Text style={[styles.errorText, { marginTop: 12, fontSize: 11, fontFamily: 'monospace', textAlign: 'left', color: '#666' }]}>
+              {this.state.error.stack}
+            </Text>
+          )}
         </View>
       );
     }
@@ -53,13 +60,18 @@ const styles = StyleSheet.create({
 const iconFontStyles = `
 @font-face {
   font-family: 'MaterialIcons';
-  src: url('https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.0.0/Fonts/MaterialIcons.ttf') format('truetype');
+  src: url('/fonts/MaterialIcons.ttf') format('truetype'),
+       url('https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.0.0/Fonts/MaterialIcons.ttf') format('truetype');
+  font-display: swap;
 }
 @font-face {
   font-family: 'Ionicons';
-  src: url('https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.0.0/Fonts/Ionicons.ttf') format('truetype');
+  src: url('/fonts/Ionicons.ttf') format('truetype'),
+       url('https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.0.0/Fonts/Ionicons.ttf') format('truetype');
+  font-display: swap;
 }
 `;
+
 
 const style = document.createElement('style');
 style.type = 'text/css';
@@ -70,9 +82,11 @@ if (style.styleSheet) {
 }
 document.head.appendChild(style);
 
+const AppComponent = (App && (typeof App === 'function' ? App : App.default)) || App;
+
 const RootApp = () => (
   <WebErrorBoundary>
-    <App />
+    <AppComponent />
   </WebErrorBoundary>
 );
 

@@ -48,7 +48,7 @@ export default function Login() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'web' ? undefined : (Platform.OS === 'ios' ? 'padding' : 'height')}
       style={[styles.container, { backgroundColor: theme.background }]}
     >
       <ScrollView

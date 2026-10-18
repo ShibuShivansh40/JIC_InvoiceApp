@@ -18,7 +18,7 @@ module.exports = {
       'react-native-print$': path.resolve(__dirname, 'src/web/printMock.js'),
       'react-native-share$': path.resolve(__dirname, 'src/web/shareMock.js'),
     },
-    extensions: ['.web.js', '.web.tsx', '.web.ts', '.js', '.jsx', '.json', '.tsx', '.ts'],
+    extensions: ['.web.tsx', '.web.ts', '.web.jsx', '.web.js', '.tsx', '.ts', '.jsx', '.js', '.json'],
   },
   module: {
     rules: [
@@ -39,7 +39,7 @@ module.exports = {
             presets: [
               '@babel/preset-env',
               '@babel/preset-react',
-              '@babel/preset-typescript',
+              ['@babel/preset-typescript', { onlyRemoveTypeImports: true }],
             ],
             plugins: [
               'react-native-web',
@@ -57,6 +57,9 @@ module.exports = {
       },
     ],
   },
+  ignoreWarnings: [
+    /export '.*' \(reexported as '.*'\) was not found in/,
+  ],
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'index.html'),
@@ -67,17 +70,27 @@ module.exports = {
           const publicDir = path.resolve(__dirname, 'public');
           const distDir = path.resolve(__dirname, 'dist');
           if (fs.existsSync(publicDir) && fs.existsSync(distDir)) {
-            fs.readdirSync(publicDir).forEach((file) => {
-              fs.copyFileSync(path.join(publicDir, file), path.join(distDir, file));
-            });
+            fs.cpSync(publicDir, distDir, { recursive: true });
           }
+
         });
       },
     },
   ],
   devServer: {
+    static: {
+      directory: path.resolve(__dirname, 'public'),
+    },
     historyApiFallback: true,
     port: 3000,
     hot: true,
+    client: {
+      overlay: {
+        errors: true,
+        warnings: false,
+      },
+    },
   },
 };
+
+

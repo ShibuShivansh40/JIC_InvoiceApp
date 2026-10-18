@@ -12,8 +12,9 @@ self.addEventListener('install', (event) => {
       const html = await res.clone().text();
       await c.put('/', res);
       const scripts = [...html.matchAll(/src="?(\/[^"\s>]+\.js)/g)].map((m) => m[1]);
-      await c.addAll(['/manifest.json', '/icon-192.png', ...scripts]);
+      await c.addAll(['/manifest.json', '/icon-192.png', '/fonts/MaterialIcons.ttf', '/fonts/Ionicons.ttf', ...scripts]);
     })
+
   );
   self.skipWaiting();
 });
