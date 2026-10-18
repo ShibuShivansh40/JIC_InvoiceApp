@@ -294,13 +294,22 @@ const CreateInvoice = ({ navigation, route }) => {
             inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary, borderColor: theme.border }]}
             data={clients}
             search
-            maxHeight={300}
+            maxHeight={280}
+            inverted={false}
+            dropdownPosition="bottom"
             labelField="label"
             valueField="value"
             placeholder="Select Client"
             searchPlaceholder="Search..."
             value={clientName}
             onChange={item => setClientName(item.value)}
+            flatListProps={{
+              style: { maxHeight: 250 },
+              nestedScrollEnabled: true,
+              showsVerticalScrollIndicator: true,
+              scrollEnabled: true,
+              keyboardShouldPersistTaps: 'handled',
+            }}
           />
         )}
         <TouchableOpacity style={styles.addLink} onPress={() => setClientModalVisible(true)}>
@@ -370,13 +379,22 @@ const CreateInvoice = ({ navigation, route }) => {
                   inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary, borderColor: theme.border }]}
                   data={products}
                   search
-                  maxHeight={300}
+                  maxHeight={280}
+                  inverted={false}
+                  dropdownPosition="bottom"
                   labelField="label"
                   valueField="value"
                   placeholder="Select Product"
                   searchPlaceholder="Search products..."
                   value={item.name}
                   onChange={selected => handleItemChange(index, 'name', selected.value)}
+                  flatListProps={{
+                    style: { maxHeight: 250 },
+                    nestedScrollEnabled: true,
+                    showsVerticalScrollIndicator: true,
+                    scrollEnabled: true,
+                    keyboardShouldPersistTaps: 'handled',
+                  }}
                 />
 
                 <View style={styles.row}>
@@ -389,11 +407,21 @@ const CreateInvoice = ({ navigation, route }) => {
                     placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
                     selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
                     data={CATEGORY_DATA}
+                    maxHeight={200}
+                    inverted={false}
+                    dropdownPosition="bottom"
                     labelField="label"
                     valueField="value"
                     placeholder="Category"
                     value={item.category}
                     onChange={selected => handleItemChange(index, 'category', selected.value)}
+                    flatListProps={{
+                      style: { maxHeight: 200 },
+                      nestedScrollEnabled: true,
+                      showsVerticalScrollIndicator: true,
+                      scrollEnabled: true,
+                      keyboardShouldPersistTaps: 'handled',
+                    }}
                   />
                   <TextInput
                     style={[styles.numericInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.accent }]}
@@ -589,7 +617,6 @@ const styles = StyleSheet.create({
   dropdownMenuContainer: {
     borderRadius: 16,
     borderWidth: 1,
-    overflow: 'hidden',
   },
   placeholderStyle: {
     fontSize: 14.5,

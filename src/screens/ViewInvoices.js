@@ -73,7 +73,7 @@ const ListHeader = ({
     <View style={styles.filterRow}>
       <Dropdown
         style={[styles.dropdown, { flex: 1.5, backgroundColor: theme.inputBackground, borderColor: theme.border }]}
-        containerStyle={{ backgroundColor: theme.cardBackground, borderColor: theme.border, borderRadius: 16, overflow: 'hidden' }}
+        containerStyle={{ backgroundColor: theme.cardBackground, borderColor: theme.border, borderRadius: 16 }}
         itemTextStyle={{ color: theme.textPrimary }}
         itemContainerStyle={{ backgroundColor: theme.cardBackground }}
         activeColor={isDarkMode ? '#2C2C2E' : '#F0F7FF'}
@@ -82,29 +82,47 @@ const ListHeader = ({
         inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.background, color: theme.textPrimary, borderColor: theme.border }]}
         data={[{ label: 'All Clients', value: 'all' }, ...clients]}
         search
-        maxHeight={300}
+        maxHeight={280}
+        inverted={false}
+        dropdownPosition="bottom"
         labelField="label"
         valueField="value"
         placeholder="Client"
         searchPlaceholder="Search..."
         value={selectedClient}
         onChange={item => setSelectedClient(item.value)}
+        flatListProps={{
+          style: { maxHeight: 250 },
+          nestedScrollEnabled: true,
+          showsVerticalScrollIndicator: true,
+          scrollEnabled: true,
+          keyboardShouldPersistTaps: 'handled',
+        }}
       />
       <Dropdown
         style={[styles.dropdown, { flex: 1, backgroundColor: theme.inputBackground, borderColor: theme.border }]}
-        containerStyle={{ backgroundColor: theme.cardBackground, borderColor: theme.border, borderRadius: 16, overflow: 'hidden' }}
+        containerStyle={{ backgroundColor: theme.cardBackground, borderColor: theme.border, borderRadius: 16 }}
         itemTextStyle={{ color: theme.textPrimary }}
         itemContainerStyle={{ backgroundColor: theme.cardBackground }}
         activeColor={isDarkMode ? '#2C2C2E' : '#F0F7FF'}
         placeholderStyle={[styles.placeholderStyle, { color: theme.textSecondary }]}
         selectedTextStyle={[styles.selectedTextStyle, { color: theme.textPrimary }]}
         data={MONTHS}
-        maxHeight={300}
+        maxHeight={280}
+        inverted={false}
+        dropdownPosition="bottom"
         labelField="label"
         valueField="value"
         placeholder="Month"
         value={selectedMonth}
         onChange={item => setSelectedMonth(item.value)}
+        flatListProps={{
+          style: { maxHeight: 250 },
+          nestedScrollEnabled: true,
+          showsVerticalScrollIndicator: true,
+          scrollEnabled: true,
+          keyboardShouldPersistTaps: 'handled',
+        }}
       />
     </View>
 

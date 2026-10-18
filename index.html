@@ -35,6 +35,18 @@
     input, select, textarea {
       outline: none;
     }
+    /* Enable momentum scrolling on iOS and ensure smooth scroll gestures for dropdowns */
+    [data-testid*="flatlist"],
+    div[style*="overflow: auto"],
+    div[style*="overflow: scroll"],
+    div[style*="overflow-y: auto"],
+    div[style*="overflow-y: scroll"],
+    div[style*="max-height"],
+    div[style*="maxHeight"] {
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
+      overscroll-behavior: contain !important;
+    }
   </style>
 
 </head>

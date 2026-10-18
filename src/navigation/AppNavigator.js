@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Dashboard from '../screens/Dashboard';
@@ -16,7 +16,6 @@ const Tab = createBottomTabNavigator();
 export default function AppNavigator() {
   const { theme, isDarkMode } = useTheme();
   const { isAuthenticated, isLoading } = useAuth();
-  const insets = useSafeAreaInsets();
 
   if (isLoading) {
     return (
@@ -40,7 +39,7 @@ export default function AppNavigator() {
             {
               backgroundColor: theme.cardBackground,
               shadowColor: theme.cardShadow,
-              bottom: Math.max(15, (insets?.bottom || 0) + 6),
+              bottom: 12,
             },
           ],
           tabBarActiveTintColor: theme.accent,
@@ -80,10 +79,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tabBar: {
-    position: 'absolute',
-    bottom: 15,
-    left: 25,
-    right: 25,
+    position: Platform.OS === 'web' ? 'fixed' : 'absolute',
+    bottom: 12,
+    left: 20,
+    right: 20,
     height: 60,
     borderRadius: 25,
     borderTopWidth: 0,
@@ -91,6 +90,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
+    zIndex: 1000,
   },
   iconContainer: {
     alignItems: 'center',
